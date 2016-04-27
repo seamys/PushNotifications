@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="GlobalVariables.cs" />
     <Compile Include="MessageType.cs" />
+    <Compile Include="Schema\Operators.cs" />
     <Compile Include="PushClient.cs" />
     <Compile Include="Schema\ResultStatus.cs" />
     <Compile Include="Schema\AcceptTime.cs" />
