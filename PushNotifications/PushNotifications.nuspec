@@ -2,9 +2,9 @@
 <package >
   <metadata>
     <id>PushNotifications.Xinge</id>
-    <version>1.0.0.0</version>
+    <version>$version$</version>
     <title>PushNotifications.Xinge - PushNotifications</title>
-    <authors>Richard Morris</authors>
+    <authors>seamys</authors>
     <licenseUrl>http://opensource.org/licenses/BSD-3-Clause</licenseUrl>
     <projectUrl>https://github.com/seamys/PushNotifications</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
