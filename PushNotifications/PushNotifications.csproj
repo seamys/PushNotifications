@@ -45,16 +45,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GlobalVariables.cs" />
+    <Compile Include="MessageType.cs" />
     <Compile Include="PushClient.cs" />
-    <Compile Include="Models\ResultStatus.cs" />
-    <Compile Include="Models\AcceptTime.cs" />
-    <Compile Include="Models\Action.cs" />
-    <Compile Include="Models\Alert.cs" />
-    <Compile Include="Models\AndroidNotification.cs" />
-    <Compile Include="Models\Browser.cs" />
-    <Compile Include="Models\Notification.cs" />
-    <Compile Include="Models\PayloadNotification.cs" />
-    <Compile Include="Models\PushResult.cs" />
+    <Compile Include="Schema\ResultStatus.cs" />
+    <Compile Include="Schema\AcceptTime.cs" />
+    <Compile Include="Schema\Action.cs" />
+    <Compile Include="Schema\Alert.cs" />
+    <Compile Include="Schema\AndroidNotification.cs" />
+    <Compile Include="Schema\Browser.cs" />
+    <Compile Include="Schema\Notification.cs" />
+    <Compile Include="Schema\PayloadNotification.cs" />
+    <Compile Include="Schema\PushResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

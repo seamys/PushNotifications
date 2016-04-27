@@ -7,7 +7,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using PushNotifications.Models;
+using Newtonsoft.Json.Linq;
+using PushNotifications.Schema;
 using GV = PushNotifications.GlobalVariables;
 
 namespace PushNotifications
@@ -35,20 +36,71 @@ namespace PushNotifications
         /// </summary>
         /// <param name="deviceToken"></param>
         /// <param name="msg"></param>
+        /// <param name="messageType"></param>
         /// <returns></returns>
-        public PushResult PushSingleDevice(string deviceToken, Notification msg)
+        public Task<PushResult> PushSingleDeviceAsync(string deviceToken, Notification msg, MessageType messageType = MessageType.Notification)
         {
             string message = msg.ToJson();
             Dictionary<string, string> param = InitParams();
             param.Add("message", message);
             param.Add("device_token", deviceToken);
-            param.Add("message_type", "0");
+            param.Add("message_type", messageType.ToString());
             param.Add("expire_time", ExpireTime.ToString());
             param.Add("send_time", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             if (msg is AndroidNotification)
                 param.Add("multi_pkg", "1");
             param.Add("environment", IsDevelopment ? "1" : "2");
-            return RestfulPost(GV.RESTAPI_PUSHSINGLEDEVICE, param).Result;
+            return RestfulPost<PushResult>(GV.RESTAPI_PUSHSINGLEDEVICE, param);
+        }
+        /// <summary>
+        /// 推送到多个设备
+        /// </summary>
+        /// <param name="devices">token集合</param>
+        /// <param name="msg">消息</param>
+        /// <param name="messageType">通知还是透传消息</param>
+        /// <returns></returns>
+        public async Task<PushResult> PushMultiDeviceAsync(List<string> devices, Notification msg, MessageType messageType = MessageType.Notification)
+        {
+            string pushId = await CreateMultiPushAsync(messageType, msg);
+            if (string.IsNullOrWhiteSpace(pushId))
+                return new PushResult();
+            Dictionary<string, string> param = InitParams();
+            param.Add("message", msg.ToJson());
+            param.Add("device_list", JsonConvert.SerializeObject(devices));
+            param.Add("push_id", pushId);
+            return await RestfulPost<PushResult>(GV.RESTAPI_PUSHDEVICELISTMULTIPLE, param);
+        }
+        /// <summary>
+        /// 创建多条推送Id
+        /// </summary>
+        /// <returns></returns>
+        public async Task<string> CreateMultiPushAsync(MessageType type, Notification msg)
+        {
+            Dictionary<string, string> param = InitParams();
+            param.Add("expire_time", ExpireTime.ToString());
+            if (msg is AndroidNotification)
+                param.Add("multi_pkg", "1");
+            param.Add("message_type", type.ToString());
+            param.Add("message", msg.ToJson());
+            string content = await RestfulPost(GV.RESTAPI_CREATEMULTIPUSH, param);
+            JObject obj = JObject.Parse(content);
+            return obj["result"]["push_id"].Value<string>();
+        }
+        protected async Task<T> RestfulPost<T>(string url, Dictionary<string, string> param)
+        {
+            string content = await RestfulPost(url, param);
+            return JsonConvert.DeserializeObject<T>(content);
+        }
+        protected async Task<string> RestfulPost(string url, Dictionary<string, string> param)
+        {
+            PushResult result = new PushResult();
+            string sign = Signature(url, "POST", param);
+            param.Add("sign", sign);
+            using (HttpClient client = new HttpClient())
+            {
+                var response = await client.PostAsync(url, new FormUrlEncodedContent(param));
+                return await response.Content.ReadAsStringAsync();
+            }
         }
         /// <summary>
         /// 获取签名
@@ -69,19 +121,6 @@ namespace PushNotifications
             builder.Append(SecretKey);
             return Md5(builder.ToString());
         }
-        protected async Task<PushResult> RestfulPost(string url, Dictionary<string, string> param)
-        {
-            PushResult result = new PushResult();
-            string sign = Signature(url, "POST", param);
-            param.Add("sign", sign);
-            using (HttpClient client = new HttpClient())
-            {
-                var response = await client.PostAsync(url, new FormUrlEncodedContent(param));
-                if (response.Content == null) return result;
-                string content = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<PushResult>(content);
-            }
-        }
         /// <summary>
         /// 初始化参数
         /// </summary>
@@ -89,7 +128,11 @@ namespace PushNotifications
         protected Dictionary<string, string> InitParams()
         {
             string currentTimestamp = (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds.ToString(CultureInfo.InvariantCulture);
-            return new Dictionary<string, string>() { { "access_id", AccessId }, { "timestamp", currentTimestamp } };
+            return new Dictionary<string, string>()
+            {
+                { "access_id", AccessId },
+                { "timestamp", currentTimestamp }
+            };
         }
         protected string Md5(string source)
         {

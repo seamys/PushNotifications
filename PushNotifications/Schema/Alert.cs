@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace PushNotifications.Models
+namespace PushNotifications.Schema
 {
 	/// <summary>
 	/// Alert Portion of the Notification Payload

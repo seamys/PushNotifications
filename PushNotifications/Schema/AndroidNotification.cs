@@ -2,7 +2,7 @@
 using System.Text;
 using Newtonsoft.Json.Linq;
 
-namespace PushNotifications.Models
+namespace PushNotifications.Schema
 {
     public class AndroidNotification : Notification
     {

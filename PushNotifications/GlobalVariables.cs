@@ -1,7 +1,7 @@
 ﻿// ReSharper disable InconsistentNaming
 namespace PushNotifications
 {
-    public class GlobalVariables
+    internal class GlobalVariables
     {
         #region 推送地址
         public static string RESTAPI_PUSHSINGLEDEVICE = "http://openapi.xg.qq.com/v2/push/single_device";

@@ -1,6 +1,6 @@
 using System;
 
-namespace PushNotifications.Models
+namespace PushNotifications.Schema
 {
     public class AcceptTime
     {

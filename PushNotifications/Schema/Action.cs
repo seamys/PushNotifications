@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace PushNotifications.Models
+namespace PushNotifications.Schema
 {
     public class Action
     {

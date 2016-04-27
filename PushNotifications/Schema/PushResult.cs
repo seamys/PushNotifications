@@ -1,4 +1,4 @@
-﻿namespace PushNotifications.Models
+﻿namespace PushNotifications.Schema
 {
     public class PushResult
     {
