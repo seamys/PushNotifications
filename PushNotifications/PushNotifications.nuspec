@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>PushNotifications.Xinge</id>
+    <version>1.0.0.0</version>
+    <title>PushNotifications.Xinge - PushNotifications</title>
+    <authors>Richard Morris</authors>
+    <licenseUrl>http://opensource.org/licenses/BSD-3-Clause</licenseUrl>
+    <projectUrl>https://github.com/seamys/PushNotifications</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>tencent Xinge PushNotifications</description>
+    <copyright>Copyright 2013</copyright>
+    <tags>tencent Xinge PushNotifications</tags>
+    <dependencies>
+      <dependency id="Newtonsoft.Json" version="8.0.3" />
+    </dependencies>
+  </metadata>
+</package>
