@@ -17,5 +17,6 @@ namespace PushNotifications.Schema
                 this.CustomItems.Add(key, values);
         }
         public abstract string ToJson();
+        public int MessageType { get; set; }
     }
 }

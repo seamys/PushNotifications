@@ -38,13 +38,13 @@ namespace PushNotifications
         /// <param name="msg"></param>
         /// <param name="messageType"></param>
         /// <returns></returns>
-        public Task<PushResult> PushSingleDeviceAsync(string deviceToken, Notification msg, MessageType messageType = MessageType.Notification)
+        public Task<PushResult> PushSingleDeviceAsync(string deviceToken, Notification msg)
         {
             string message = msg.ToJson();
             Dictionary<string, string> param = InitParams();
             param.Add("message", message);
             param.Add("device_token", deviceToken);
-            param.Add("message_type", messageType.ToString());
+            param.Add("message_type", msg.MessageType.ToString());
             param.Add("expire_time", ExpireTime.ToString());
             param.Add("send_time", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             if (msg is AndroidNotification)
@@ -60,7 +60,7 @@ namespace PushNotifications
         /// <param name="msg">消息体</param>
         /// <param name="messageType">消息类型：1：通知 2：透传消息</param>
         /// <returns></returns>
-        public Task<PushResult> PushSingleAccountAsync(string account, Notification msg, MessageType messageType = MessageType.Notification)
+        public Task<PushResult> PushSingleAccountAsync(string account, Notification msg)
         {
             throw new NotImplementedException();
         }
@@ -71,7 +71,7 @@ namespace PushNotifications
         /// <param name="msg"></param>
         /// <param name="messageType"></param>
         /// <returns></returns>
-        public Task<PushResult> PushMultiAccountAsync(List<string> accounts, Notification msg, MessageType messageType = MessageType.Notification)
+        public Task<PushResult> PushMultiAccountAsync(List<string> accounts, Notification msg)
         {
             throw new NotImplementedException();
         }
@@ -81,16 +81,7 @@ namespace PushNotifications
         /// <param name="msg"></param>
         /// <param name="messageType"></param>
         /// <returns></returns>
-        public Task<PushResult> PushAllDevice(Notification msg, MessageType messageType = MessageType.Notification)
-        {
-            throw new NotImplementedException();
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="pushId"></param>
-        /// <returns></returns>
-        public Task<PushResult> GetNotificationsStatus(string pushId)
+        public Task<PushResult> PushAllDevice(Notification msg)
         {
             throw new NotImplementedException();
         }
@@ -102,7 +93,7 @@ namespace PushNotifications
         /// <param name="msg"></param>
         /// <param name="messageType"></param>
         /// <returns></returns>
-        public Task<PushResult> PushTagsDevice(List<string> tags, Operators operators, Notification msg, MessageType messageType = MessageType.Notification)
+        public Task<PushResult> PushTagsDevice(List<string> tags, Operators operators, Notification msg)
         {
             throw new NotImplementedException();
         }
@@ -113,9 +104,9 @@ namespace PushNotifications
         /// <param name="msg">消息</param>
         /// <param name="messageType">通知还是透传消息</param>
         /// <returns></returns>
-        public async Task<PushResult> PushMultiDeviceAsync(List<string> devices, Notification msg, MessageType messageType = MessageType.Notification)
+        public async Task<PushResult> PushMultiDeviceAsync(List<string> devices, Notification msg)
         {
-            string pushId = await CreateMultiPushAsync(messageType, msg);
+            string pushId = await CreateMultiPushAsync(msg);
             if (string.IsNullOrWhiteSpace(pushId))
                 return new PushResult();
             Dictionary<string, string> param = InitParams();
@@ -125,16 +116,121 @@ namespace PushNotifications
             return await RestfulPost<PushResult>(GV.RESTAPI_PUSHDEVICELISTMULTIPLE, param);
         }
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pushId"></param>
+        /// <returns></returns>
+        public Task<PushResult> QueryMessageStatus(string pushId)
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public Task<PushResult> QueryDeviceNum()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="limit"></param>
+        /// <returns></returns>
+        public Task<PushResult> QueryTagsAsync(uint start, uint limit)
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public Task<PushResult> QueryTokenTags(string deviceToken)
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public Task<PushResult> QueryTagTokens(string tag)
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pushId"></param>
+        /// <returns></returns>
+        public Task<PushResult> CancelTimingTask(string pushId)
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tags"></param>
+        /// <returns></returns>
+        public Task<PushResult> SetTags(Dictionary<string, List<string>> tags)
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tags"></param>
+        /// <returns></returns>
+        public Task<PushResult> DeleteTags(Dictionary<string, List<string>> tags)
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="deviceToken"></param>
+        /// <returns></returns>
+        public Task<PushResult> GetTokenInfo(string deviceToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PushResult> DeleteOffline()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="account"></param>
+        /// <param name="deviceToken"></param>
+        /// <returns></returns>
+        public Task<PushResult> DeleteAccountTokens(string account, string deviceToken)
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="account"></param>
+        /// <param name="deviceToken"></param>
+        /// <returns></returns>
+        public Task<PushResult> DeleteAccountTokens(string account)
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
         /// 创建多条推送Id
         /// </summary>
         /// <returns></returns>
-        public async Task<string> CreateMultiPushAsync(MessageType type, Notification msg)
+        public async Task<string> CreateMultiPushAsync(Notification msg)
         {
             Dictionary<string, string> param = InitParams();
             param.Add("expire_time", ExpireTime.ToString());
             if (msg is AndroidNotification)
                 param.Add("multi_pkg", "1");
-            param.Add("message_type", type.ToString());
+            param.Add("message_type", msg.MessageType.ToString());
             param.Add("message", msg.ToJson());
             string content = await RestfulPost(GV.RESTAPI_CREATEMULTIPUSH, param);
             JObject obj = JObject.Parse(content);

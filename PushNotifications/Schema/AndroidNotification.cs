@@ -99,7 +99,6 @@ namespace PushNotifications.Schema
             }
             return rawString;// encodedString.ToString();
         }
-
         public override string ToString()
         {
             return ToJson();
