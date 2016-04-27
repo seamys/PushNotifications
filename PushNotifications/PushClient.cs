@@ -81,7 +81,7 @@ namespace PushNotifications
         /// <param name="msg"></param>
         /// <param name="messageType"></param>
         /// <returns></returns>
-        public Task<PushResult> PushAllDevice(Notification msg)
+        public Task<PushResult> PushAllDeviceAsync(Notification msg)
         {
             throw new NotImplementedException();
         }
@@ -93,7 +93,7 @@ namespace PushNotifications
         /// <param name="msg"></param>
         /// <param name="messageType"></param>
         /// <returns></returns>
-        public Task<PushResult> PushTagsDevice(List<string> tags, Operators operators, Notification msg)
+        public Task<PushResult> PushTagsDeviceAsync(List<string> tags, Operators operators, Notification msg)
         {
             throw new NotImplementedException();
         }
@@ -120,7 +120,7 @@ namespace PushNotifications
         /// </summary>
         /// <param name="pushId"></param>
         /// <returns></returns>
-        public Task<PushResult> QueryMessageStatus(string pushId)
+        public Task<PushResult> QueryMessageStatusAsync(string pushId)
         {
             throw new NotImplementedException();
         }
@@ -128,7 +128,7 @@ namespace PushNotifications
         /// 
         /// </summary>
         /// <returns></returns>
-        public Task<PushResult> QueryDeviceNum()
+        public Task<PushResult> QueryDeviceNumAsync()
         {
             throw new NotImplementedException();
         }
@@ -146,7 +146,7 @@ namespace PushNotifications
         /// 
         /// </summary>
         /// <returns></returns>
-        public Task<PushResult> QueryTokenTags(string deviceToken)
+        public Task<PushResult> QueryTokenTagsAsync(string deviceToken)
         {
             throw new NotImplementedException();
         }
@@ -155,7 +155,7 @@ namespace PushNotifications
         /// </summary>
         /// <param name="tag"></param>
         /// <returns></returns>
-        public Task<PushResult> QueryTagTokens(string tag)
+        public Task<PushResult> QueryTagTokensAsync(string tag)
         {
             throw new NotImplementedException();
         }
@@ -164,7 +164,7 @@ namespace PushNotifications
         /// </summary>
         /// <param name="pushId"></param>
         /// <returns></returns>
-        public Task<PushResult> CancelTimingTask(string pushId)
+        public Task<PushResult> CancelTimingTaskAsync(string pushId)
         {
             throw new NotImplementedException();
         }
@@ -173,7 +173,7 @@ namespace PushNotifications
         /// </summary>
         /// <param name="tags"></param>
         /// <returns></returns>
-        public Task<PushResult> SetTags(Dictionary<string, List<string>> tags)
+        public Task<PushResult> SetTagsAsync(Dictionary<string, List<string>> tags)
         {
             throw new NotImplementedException();
         }
@@ -182,7 +182,7 @@ namespace PushNotifications
         /// </summary>
         /// <param name="tags"></param>
         /// <returns></returns>
-        public Task<PushResult> DeleteTags(Dictionary<string, List<string>> tags)
+        public Task<PushResult> DeleteTagsAsync(Dictionary<string, List<string>> tags)
         {
             throw new NotImplementedException();
         }
@@ -191,12 +191,12 @@ namespace PushNotifications
         /// </summary>
         /// <param name="deviceToken"></param>
         /// <returns></returns>
-        public Task<PushResult> GetTokenInfo(string deviceToken)
+        public Task<PushResult> GetTokenInfoAsync(string deviceToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<PushResult> DeleteOffline()
+        public Task<PushResult> DeleteOfflineAsync()
         {
             throw new NotImplementedException();
         }
@@ -206,7 +206,7 @@ namespace PushNotifications
         /// <param name="account"></param>
         /// <param name="deviceToken"></param>
         /// <returns></returns>
-        public Task<PushResult> DeleteAccountTokens(string account, string deviceToken)
+        public Task<PushResult> DeleteAccountTokensAsync(string account, string deviceToken)
         {
             throw new NotImplementedException();
         }
@@ -216,7 +216,7 @@ namespace PushNotifications
         /// <param name="account"></param>
         /// <param name="deviceToken"></param>
         /// <returns></returns>
-        public Task<PushResult> DeleteAccountTokens(string account)
+        public Task<PushResult> DeleteAccountTokensAsync(string account)
         {
             throw new NotImplementedException();
         }
