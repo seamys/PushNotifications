@@ -8,7 +8,7 @@ namespace PushNotifications.Schema
         public DateTime End { get; set; }
         public override string ToString()
         {
-            return $"{{ \"start\":{{ \"hour\":\"{Start.Hour}\"}},{{\"min\":\"{Start.Minute}\"}},\"end\":{{ \"hour\":\"{Start.Hour}\"}},{{\"min\":\"{Start.Minute}\"}}}}";
+            return $"{{ \"start\":{{ \"hour\":\"{Start.Hour}\"}},{{\"min\":\"{Start.Minute}\"}},\"end\":{{ \"hour\":\"{End.Hour}\"}},{{\"min\":\"{End.Minute}\"}}}}";
         }
     }
 }

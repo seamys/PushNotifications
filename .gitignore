@@ -4,7 +4,7 @@ App_Data
 [Pp]ackages
 Logs
 PrecompiledWeb/
-
+Publish.cmd
 _ReSharper.*
 *crunch*
 
@@ -13,6 +13,7 @@ _ReSharper.*
 *.cache
 *.dotCover
 *.dotsettings
+*.nupkg
 !*.proj
 
 # Visual Studio 2015 cache/options directory

@@ -8,7 +8,7 @@
     <licenseUrl>http://opensource.org/licenses/BSD-3-Clause</licenseUrl>
     <projectUrl>https://github.com/seamys/PushNotifications</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>tencent Xinge PushNotifications</description>
+    <description>Mobile app push notification sdk for Tencent xinge (http://xg.qq.com/xg)</description>
     <copyright>Copyright 2013</copyright>
     <tags>tencent Xinge PushNotifications</tags>
     <dependencies>

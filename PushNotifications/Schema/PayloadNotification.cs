@@ -91,7 +91,7 @@ namespace PushNotifications.Schema
             foreach (char c in rawString)
             {
                 if ((int)c < 32 || (int)c > 127)
-                    encodedString.Append("\\u" + $"{Convert.ToUInt32(c):x4}");
+                    encodedString.Append($"\\u{Convert.ToUInt32(c):x4}");
                 else
                     encodedString.Append(c);
             }
