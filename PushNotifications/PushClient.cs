@@ -58,7 +58,6 @@ namespace PushNotifications
         /// <remarks>设备的账户或别名由终端SDK在调用推送注册接口时设置，详情参考终端SDK文档。</remarks>
         /// <param name="account">针对某一账号推送，帐号可以是qq号，邮箱号，openid，手机号等各种类型</param>
         /// <param name="msg">消息体</param>
-        /// <param name="messageType">消息类型：1：通知 2：透传消息</param>
         /// <returns></returns>
         public Task<PushResult> PushSingleAccountAsync(string account, Notification msg)
         {
@@ -69,7 +68,6 @@ namespace PushNotifications
         /// </summary>
         /// <param name="accounts"></param>
         /// <param name="msg"></param>
-        /// <param name="messageType"></param>
         /// <returns></returns>
         public Task<PushResult> PushMultiAccountAsync(List<string> accounts, Notification msg)
         {
@@ -79,7 +77,6 @@ namespace PushNotifications
         /// 
         /// </summary>
         /// <param name="msg"></param>
-        /// <param name="messageType"></param>
         /// <returns></returns>
         public Task<PushResult> PushAllDeviceAsync(Notification msg)
         {
@@ -91,7 +88,6 @@ namespace PushNotifications
         /// <param name="tags"></param>
         /// <param name="operators"></param>
         /// <param name="msg"></param>
-        /// <param name="messageType"></param>
         /// <returns></returns>
         public Task<PushResult> PushTagsDeviceAsync(List<string> tags, Operators operators, Notification msg)
         {
@@ -102,7 +98,6 @@ namespace PushNotifications
         /// </summary>
         /// <param name="devices">token集合</param>
         /// <param name="msg">消息</param>
-        /// <param name="messageType">通知还是透传消息</param>
         /// <returns></returns>
         public async Task<PushResult> PushMultiDeviceAsync(List<string> devices, Notification msg)
         {
