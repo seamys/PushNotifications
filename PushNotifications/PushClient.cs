@@ -73,7 +73,7 @@ namespace PushNotifications
         /// <returns></returns>
         public async Task<string> PushMultiAccountAsync(List<string> accounts, Notification msg)
         {
-            string pushId = await CreateMultiPushAsync(msg);
+            string pushId = GetPushId(await CreateMultiPushAsync(msg));
             if (string.IsNullOrWhiteSpace(pushId))
                 return JsonConvert.SerializeObject(new { ret_code = -1 });
             var param = InitParams(msg);
@@ -120,7 +120,7 @@ namespace PushNotifications
         /// <returns></returns>
         public async Task<string> PushMultiDeviceAsync(List<string> devices, Notification msg)
         {
-            string pushId = await CreateMultiPushAsync(msg);
+            string pushId = GetPushId(await CreateMultiPushAsync(msg));
             var param = InitParams();
             param.Add("device_list", JsonConvert.SerializeObject(devices));
             param.Add("push_id", pushId);
@@ -338,13 +338,6 @@ namespace PushNotifications
                 builder.Append(b.ToString("x2").ToLower());
             return builder.ToString();
         }
-        public int GetState(string content)
-        {
-            if (string.IsNullOrWhiteSpace(content)) return -1;
-            JToken token = JToken.Parse(content);
-            return token["ret_code"].Value<int>();
-        }
-
         public string GetPushId(string content)
         {
             if (string.IsNullOrWhiteSpace(content)) return null;
