@@ -44,7 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExpectedPushIosClientTests.cs" />
+    <Compile Include="PushAndroidClientTests.cs" />
+    <Compile Include="PushIosClientTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

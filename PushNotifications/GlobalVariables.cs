@@ -24,6 +24,7 @@ namespace PushNotifications
         public static string RESTAPI_QUERYTOKENSOFACCOUNT = "http://openapi.xg.qq.com/v2/application/get_app_account_tokens";
         public static string RESTAPI_DELETETOKENOFACCOUNT = "http://openapi.xg.qq.com/v2/application/del_app_account_tokens";
         public static string RESTAPI_DELETEALLTOKENSOFACCOUNT = "http://openapi.xg.qq.com/v2/application/del_app_account_all_tokens";
+        public static string RESTAPI_DELETEOFFLINEPUSH = "http://openapi.xg.qq.com/v2/push/delete_offline_msg";
         #endregion 
     }
 }

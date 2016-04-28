@@ -1,9 +1,10 @@
-﻿namespace PushNotifications.Schema
+﻿using Newtonsoft.Json.Linq;
+
+namespace PushNotifications.Schema
 {
-    public class PushResult
+    public class PushResult<T>
     {
-        public int RetCode { get; set; }
-        public string ErrMsg { get; set; }
-        public ResultStatus Result { get; set; }
+        public int State { get; set; }
+        public T Result { get; set; }
     }
 }

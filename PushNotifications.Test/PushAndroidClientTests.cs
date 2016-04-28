@@ -9,7 +9,7 @@ using PushNotifications.Schema;
 namespace PushNotifications.Test
 {
     [TestFixture]
-    public class ExpectedPushIosClientTests
+    public class PushAndroidClientTests
     {
 
         protected string DeviceToken;
@@ -32,7 +32,7 @@ namespace PushNotifications.Test
             PushClient client = GetClient();
             var result = client.PushSingleDeviceAsync(DeviceToken, new PayloadNotification(alert, 1)).Result;
             Assert.NotNull(result);
-            Assert.AreEqual(result.RetCode, 0);
+            Assert.AreEqual(result, 0);
         }
 
         public void PushSingleAccountAsyncTest(string alert, int badge)
@@ -40,7 +40,7 @@ namespace PushNotifications.Test
             PushClient client = GetClient();
             var result = client.PushSingleAccountAsync("13367241961", new PayloadNotification(alert, 1)).Result;
             Assert.NotNull(result);
-            Assert.AreEqual(result.RetCode, 0);
+            Assert.AreEqual(result, 0);
         }
     }
 }
