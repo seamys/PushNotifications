@@ -19,12 +19,12 @@ namespace PushNotifications.Test
         [SetUp]
         public void SetUp()
         {
-            DeviceToken = "####";
+            DeviceToken = "920dcb46482cbbdd43afabff0f011df3ea15cb8a";
         }
 
         protected PushClient GetClient()
         {
-            return new PushClient("####", "####");
+            return new PushClient("2100194555", "606a7632f3dbbf9025632a0c0fb2ca0d");
         }
 
         [TestCase("The time", "Time for individuals is consecutive and irreversible, but for the universe, just a repetitive circle。")]
@@ -45,6 +45,18 @@ namespace PushNotifications.Test
             PushClient client = GetClient();
             client.HttpCallback += Client_HttpCallback;
             var result = client.QueryDeviceCountAsync().Result;
+            Assert.NotNull(result);
+        }
+        [TestCase("The time", "Time for individuals is consecutive and irreversible, but for the universe, just a repetitive circle。")]
+        public void PushAllDeviceAsyncTest(string title, string content)
+        {
+            PushClient client = GetClient();
+            client.HttpCallback += Client_HttpCallback;
+            var message = new AndroidNotification(title, content);
+            message.AddExtend("builder_id", 0);
+            message.AddExtend("vibrate", 0);
+            message.MessageType = MessageType.Notification;
+            var result = client.PushMultiDeviceAsync(new List<string>() { DeviceToken }, message).Result;
             Assert.NotNull(result);
         }
 
