@@ -17,7 +17,7 @@ namespace PushNotifications.Test
         [SetUp]
         public void SetUp()
         {
-            DeviceToken = "#####";
+            DeviceToken = "###";
         }
 
         protected PushClient GetClient()

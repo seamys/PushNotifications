@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using PushNotifications.Schema;
 
@@ -17,22 +19,38 @@ namespace PushNotifications.Test
         [SetUp]
         public void SetUp()
         {
-            DeviceToken = "#####";
+            DeviceToken = "####";
         }
 
         protected PushClient GetClient()
         {
-            return new PushClient("###", "###");
+            return new PushClient("####", "####");
         }
 
-        [TestCase("Time for individuals is consecutive and irreversible, but for the universe, just a repetitive circle。", 1)]
-        [TestCase("时间对于个体来说是线性而不可逆转的；而对于整个宇宙，无非是一个周而复始的圆圈。", 2)]
-        public void PushSingleDeviceAsyncTest(string alert, int badge)
+        [TestCase("The time", "Time for individuals is consecutive and irreversible, but for the universe, just a repetitive circle。")]
+        public void PushSingleDeviceAsyncTest(string title, string content)
         {
             PushClient client = GetClient();
-            var result = client.PushSingleDeviceAsync(DeviceToken, new PayloadNotification(alert, 1)).Result;
+            client.HttpCallback += Client_HttpCallback;
+            var message = new AndroidNotification(title, content);
+            message.AddExtend("builder_id", 0);
+            message.AddExtend("vibrate", 0);
+            message.MessageType = MessageType.Notification;
+            var result = client.PushSingleDeviceAsync(DeviceToken, message).Result;
             Assert.NotNull(result);
-            Assert.AreEqual(result, 0);
+        }
+        [TestCase("The time", "Time for individuals is consecutive and irreversible, but for the universe, just a repetitive circle。")]
+        public void QueryDeviceCountAsyncTest(string title, string content)
+        {
+            PushClient client = GetClient();
+            client.HttpCallback += Client_HttpCallback;
+            var result = client.QueryDeviceCountAsync().Result;
+            Assert.NotNull(result);
+        }
+
+        private void Client_HttpCallback(string url, Dictionary<string, string> param, string content)
+        {
+            //to do
         }
 
         public void PushSingleAccountAsyncTest(string alert, int badge)

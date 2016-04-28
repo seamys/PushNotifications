@@ -20,6 +20,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -28,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\PushNotifications.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -48,7 +51,6 @@
     <Compile Include="Schema\MessageType.cs" />
     <Compile Include="Schema\Operators.cs" />
     <Compile Include="PushClient.cs" />
-    <Compile Include="Schema\ResultStatus.cs" />
     <Compile Include="Schema\AcceptTime.cs" />
     <Compile Include="Schema\Action.cs" />
     <Compile Include="Schema\Alert.cs" />
@@ -56,7 +58,6 @@
     <Compile Include="Schema\Browser.cs" />
     <Compile Include="Schema\Notification.cs" />
     <Compile Include="Schema\PayloadNotification.cs" />
-    <Compile Include="Schema\PushResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
