@@ -6,5 +6,9 @@ namespace PushNotifications.Schema
     {
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
+        public override string ToString()
+        {
+            return $"{{ \"start\":{{ \"hour\":\"{Start.Hour}\"}},{{\"min\":\"{Start.Minute}\"}},\"end\":{{ \"hour\":\"{Start.Hour}\"}},{{\"min\":\"{Start.Minute}\"}}}}";
+        }
     }
 }

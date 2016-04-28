@@ -1,4 +1,4 @@
-﻿namespace PushNotifications
+﻿namespace PushNotifications.Schema
 {
     public enum MessageType
     {
