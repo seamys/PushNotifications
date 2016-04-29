@@ -98,7 +98,7 @@ namespace PushNotifications.Schema
                 }
             }
 
-            if (this.Badge.HasValue)
+            if (Badge.HasValue)
                 aps["badge"] = new JValue(this.Badge.Value);
 
             if (!string.IsNullOrEmpty(this.Sound))

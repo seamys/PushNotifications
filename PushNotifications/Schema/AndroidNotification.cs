@@ -21,6 +21,7 @@ namespace PushNotifications.Schema
             Title = title;
             Content = content;
             ExtendItems = new Dictionary<string, object>();
+            CustomItems = new Dictionary<string, object[]>();
         }
         /// <summary>
         /// 扩展字段
