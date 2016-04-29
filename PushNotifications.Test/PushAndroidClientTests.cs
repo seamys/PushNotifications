@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using NUnit.Framework.Internal;
 using PushNotifications.Schema;
 
 namespace PushNotifications.Test
@@ -33,8 +34,8 @@ namespace PushNotifications.Test
             PushClient client = GetClient();
             client.HttpCallback += Client_HttpCallback;
             var message = new AndroidNotification(title, content);
-            message.AddExtend("builder_id", 0);
-            message.AddExtend("vibrate", 0);
+            message.AddCustom("builder_id", 0);
+            message.AddCustom("vibrate", 0);
             message.MessageType = MessageType.Notification;
             var result = client.PushSingleDeviceAsync(DeviceToken, message).Result;
             Assert.NotNull(result);
@@ -53,10 +54,78 @@ namespace PushNotifications.Test
             PushClient client = GetClient();
             client.HttpCallback += Client_HttpCallback;
             var message = new AndroidNotification(title, content);
-            message.AddExtend("builder_id", 0);
-            message.AddExtend("vibrate", 0);
+            message.AddCustom("builder_id", 0);
+            message.AddCustom("vibrate", 0);
             message.MessageType = MessageType.Notification;
             var result = client.PushMultiDeviceAsync(new List<string>() { DeviceToken }, message).Result;
+            Assert.NotNull(result);
+        }
+        [Test]
+        public void PushDeviceWithAllParams()
+        {
+            #region 自定义字段
+            string custom = @"{ 'accept_time': [{
+                'start': {
+                    'hour': '13',
+                    'min': '00'
+                },
+                'end': {
+                    'hour': '14',
+                    'min': '00'
+                }
+            },
+            {
+                'start': {
+                    'hour': '00',
+                    'min': '00'
+                },
+                'end': {
+                    'hour': '00',
+                    'min': '00'
+                }
+            }
+        ],
+        'n_id': 0,
+        'builder_id': 0,
+        'ring': 1,
+        'ring_raw': 'ring',
+        'vibrate': 1,
+        'lights': 1,
+        'clearable': 1,
+        'icon_type': 0,
+        'icon_res': 'xg',
+        'style_id': 1,
+        'small_icon': 'xg',
+        'action': {
+                'action_type  ': 1,
+            'activity ': 'xxx',
+            'aty_attr ': {
+                    'if': 0,
+                'pf': 0
+            },
+            'browser': {
+                    'url': 'www.frllk.com',
+                'confirm': 1
+            },
+            'intent': 'xxx'
+        },
+        'custom_content': {
+                'key1': 'value1',
+            'key2': 'value2'
+        }
+        }";
+            #endregion
+
+            Dictionary<string, Object> dic = JsonConvert.DeserializeObject<Dictionary<string, Object>>(custom);
+
+            AndroidNotification notification = new AndroidNotification("测试标题", "测试内容");
+            foreach (var item in dic)
+            {
+                notification.AddCustom(item.Key, item.Value);
+            }
+            PushClient client = GetClient();
+            client.HttpCallback += Client_HttpCallback;
+            var result = client.PushSingleDeviceAsync(DeviceToken, notification).Result;
             Assert.NotNull(result);
         }
 

@@ -33,7 +33,7 @@ namespace PushNotifications.Schema
         public PayloadNotification(string alert)
         {
             Alert = new Alert() { Body = alert };
-            CustomItems = new Dictionary<string, object[]>();
+            CustomItems = new Dictionary<string, object>();
         }
         /// <summary>
         /// 构造方法
@@ -44,7 +44,7 @@ namespace PushNotifications.Schema
         {
             Alert = new Alert() { Body = alert };
             Badge = badge;
-            CustomItems = new Dictionary<string, object[]>();
+            CustomItems = new Dictionary<string, object>();
         }
         /// <summary>
         /// 构造方法
@@ -57,7 +57,7 @@ namespace PushNotifications.Schema
             Alert = new Alert() { Body = alert };
             Badge = badge;
             Sound = sound;
-            CustomItems = new Dictionary<string, object[]>();
+            CustomItems = new Dictionary<string, object>();
         }
         /// <summary>
         /// 转化string 方法
@@ -66,10 +66,8 @@ namespace PushNotifications.Schema
         public override string ToJson()
         {
             JObject json = new JObject();
-
             JObject aps = new JObject();
-
-            if (!this.Alert.IsEmpty)
+            if (!Alert.IsEmpty)
             {
                 if (!string.IsNullOrEmpty(this.Alert.Body)
                     && string.IsNullOrEmpty(this.Alert.LocalizedKey)
@@ -81,11 +79,10 @@ namespace PushNotifications.Schema
                 else
                 {
                     JObject jsonAlert = new JObject();
-
                     if (!string.IsNullOrEmpty(this.Alert.LocalizedKey))
                         jsonAlert["loc-key"] = new JValue(this.Alert.LocalizedKey);
 
-                    if (this.Alert.LocalizedArgs != null && this.Alert.LocalizedArgs.Count > 0)
+                    if (Alert.LocalizedArgs != null && this.Alert.LocalizedArgs.Count > 0)
                         jsonAlert["loc-args"] = new JArray(this.Alert.LocalizedArgs.ToArray());
 
                     if (!string.IsNullOrEmpty(this.Alert.Body))
@@ -93,38 +90,20 @@ namespace PushNotifications.Schema
 
                     if (!string.IsNullOrEmpty(this.Alert.ActionLocalizedKey))
                         jsonAlert["action-loc-key"] = new JValue(this.Alert.ActionLocalizedKey);
-
                     aps["alert"] = jsonAlert;
                 }
             }
-
             if (Badge.HasValue)
                 aps["badge"] = new JValue(this.Badge.Value);
-
             if (!string.IsNullOrEmpty(this.Sound))
                 aps["sound"] = new JValue(this.Sound);
             json["aps"] = aps;
-            if (AcceptTime != null && AcceptTime.Count > 0)
-                json["accept_time"] = new JArray(AcceptTime);
-            foreach (string key in this.CustomItems.Keys)
+            foreach (var kv in CustomItems)
             {
-                if (this.CustomItems[key].Length == 1)
-                    json[key] = new JValue(this.CustomItems[key][0]);
-                else if (this.CustomItems[key].Length > 1)
-                    json[key] = new JArray(this.CustomItems[key]);
+                if (kv.Value != null)
+                    json[kv.Key] = JToken.FromObject(kv.Value);
             }
-
-            string rawString = json.ToString(Newtonsoft.Json.Formatting.None, null);
-
-            StringBuilder encodedString = new StringBuilder();
-            foreach (char c in rawString)
-            {
-                if ((int)c < 32 || (int)c > 127)
-                    encodedString.Append($"\\u{Convert.ToUInt32(c):x4}");
-                else
-                    encodedString.Append(c);
-            }
-            return rawString;// encodedString.ToString();
+            return json.ToString(Newtonsoft.Json.Formatting.None, null);
         }
     }
 }
