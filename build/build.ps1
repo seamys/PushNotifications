@@ -214,10 +214,12 @@ task Generate-Nuget -depends Set-VersionNumber, Build-Solution {
 
 # publishes the Nuget on a feed
 task Publish-Nuget {
+
+	Write-Host "$NugetApiKey - $AppVeyorPullRequestNumber";
+
 	if($AppVeyorPullRequestNumber -ne $null){
 		return
 	}
-		
 	if ($NugetApiKey -eq $null -or $NugetApiKey -eq "") {
 		throw New-Object [System.ArgumentException] "You must provide a Nuget API key as parameter: 'Invoke-psake Publish-Nuget -properties @{`"NugetApiKey`"=`"YOURAPIKEY`"}' ; or add a APIKEY environment variable to AppVeyor"
 	}
