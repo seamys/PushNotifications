@@ -3,14 +3,14 @@
   <metadata>
     <id>PushNotifications.Xinge</id>
     <version>1.2.1.0</version>
-    <title>腾讯信鸽推送SDK - PushNotifications</title>
+    <title>Tencent Xinge - PushNotifications</title>
     <authors>seamys</authors>
     <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
     <projectUrl>https://github.com/seamys/PushNotifications</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>腾讯信鸽推送SDK (http://xg.qq.com/xg)</description>
-    <copyright>Copyright 2013</copyright>
-    <tags>腾讯信鸽推送 Xinge PushNotifications</tags>
+    <description>Tencent Xinge SDK (http://xg.qq.com/xg)</description>
+    <copyright>Copyright 2016</copyright>
+    <tags>Tencent Xinge Push Notifications</tags>
     <dependencies>
       <dependency id="Newtonsoft.Json" version="8.0.3" />
     </dependencies>

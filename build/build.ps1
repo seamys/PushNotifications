@@ -78,6 +78,9 @@ task Set-VersionNumber {
 task Build-Solution -depends Cleanup-Binaries, Set-VersionNumber {
 	Write-Host "Building projects"
 
+	# make sure the runner exes are restored
+	& $NUGET_EXE restore (Join-Path $SRC_PATH "PushNotifications.sln")
+
 	# build the projects
 	# regular "$xmlobject.node | % { $_ }" don't work when they're nested: http://fredmorrison.wordpress.com/2013/03/19/reading-xml-with-powershell-why-most-examples-you-see-are-wrong/
 	[System.Xml.XmlElement] $root = $PROJECTS.get_DocumentElement()
@@ -112,9 +115,6 @@ task Build-Tests -depends Cleanup-Binaries {
 	if (-not (Test-Path $TEST_RESULTS)) {
 		mkdir $TEST_RESULTS | Out-Null
 	}
-	
-	# make sure the runner exes are restored
-	& $NUGET_EXE restore (Join-Path $SRC_PATH "PushNotifications.sln")
 	
 	# build the test projects
 	$TestProjects | % {
