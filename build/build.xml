@@ -1,0 +1,12 @@
+<projects>
+  <project>
+    <name>PushNotifications.Xinge</name>
+    <version>1.2.1.0</version>
+    <folder>..\src\PushNotifications</folder>
+    <projfile>PushNotifications.csproj</projfile>
+    <outputs>
+      <output additionalParameters="/p:Framework=NET45" folder="PushNotifications\lib\net45" />
+    </outputs>
+    <nuspec>PushNotifications.Xinge.nuspec</nuspec>
+  </project>
+</projects>
