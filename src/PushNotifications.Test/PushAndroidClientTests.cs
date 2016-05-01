@@ -36,14 +36,14 @@ namespace PushNotifications.Test
         [SetUp]
         public void SetUp()
         {
-            DeviceToken = "920dcb46482cbbdd43afabff0f011df3ea15cb8a";
+            DeviceToken = "####";
         }
 
         protected string DeviceToken;
 
         protected PushClient GetClient()
         {
-            return new PushClient("2100194555", "606a7632f3dbbf9025632a0c0fb2ca0d");
+            return new PushClient("####", "####");
         }
 
         [TestCase("The time",
@@ -80,7 +80,7 @@ namespace PushNotifications.Test
             message.AddCustom("builder_id", 0);
             message.AddCustom("vibrate", 0);
             message.MessageType = MessageType.Notification;
-            var result = client.PushMultiDeviceAsync(new List<string> {DeviceToken}, message).Result;
+            var result = client.PushAllDeviceAsync(message).Result;
             Assert.NotNull(result);
         }
 

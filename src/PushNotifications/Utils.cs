@@ -23,6 +23,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
@@ -51,7 +52,7 @@ namespace PushNotifications
                 {
                     continue;
                 }
-                var sub = new List<string> {item.Key};
+                var sub = new List<string> { item.Key };
                 item.Value.ForEach(x => sub.Add(x));
                 list.Add(sub);
             }
@@ -80,15 +81,23 @@ namespace PushNotifications
         /// 获取批量推送 PushId
         /// </summary>
         /// <param name="content">响应内容</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
         /// <returns>字符串 PushId</returns>
         public static string GetPushId(string content)
         {
-            if (!string.IsNullOrWhiteSpace(content))
+            try
             {
+                if (string.IsNullOrWhiteSpace(content))
+                    throw new ArgumentNullException($"未能从内容{content}获取到 push_id");
                 var token = JToken.Parse(content);
                 return token["result"]["push_id"].Value<string>();
             }
-            return null;
+            catch (Exception e)
+            {
+                throw new Exception($"未能从内容{content}获取到 push_id", e);
+            }
+
         }
     }
 }

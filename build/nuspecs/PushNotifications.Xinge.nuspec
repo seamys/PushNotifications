@@ -2,8 +2,8 @@
 <package>
   <metadata>
     <id>PushNotifications.Xinge</id>
-    <version>1.2.1.0</version>
-    <title>Tencent Xinge - PushNotifications</title>
+    <version>1.2.2.1</version>
+    <title>PushNotifications.Xinge</title>
     <authors>seamys</authors>
     <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
     <projectUrl>https://github.com/seamys/PushNotifications</projectUrl>
@@ -15,4 +15,7 @@
       <dependency id="Newtonsoft.Json" version="8.0.3" />
     </dependencies>
   </metadata>
+  <files>
+    <file src="..\_BuildOutput\PushNotifications\lib\net45\PushNotifications.dll" target="lib\net45\PushNotifications.dll" />
+  </files>
 </package>

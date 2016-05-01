@@ -137,6 +137,8 @@ namespace PushNotifications
         /// </summary>
         /// <param name="accounts">用户设备列表别名</param>
         /// <param name="msg">推送通知</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public async Task<string> PushMultiAccountAsync(List<string> accounts, Notification msg)
         {
@@ -193,6 +195,8 @@ namespace PushNotifications
         /// </summary>
         /// <param name="devices">token集合,单次发送token不超过1000个</param>
         /// <param name="msg">消息体</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public async Task<string> PushMultiDeviceAsync(List<string> devices, Notification msg)
         {
