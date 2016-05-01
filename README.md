@@ -1,8 +1,6 @@
 # PushNotifications
 
-腾讯信鸽推送
-
-[![Build status](https://ci.appveyor.com/api/projects/status/u8nrbj9yr5lt34vw?svg=true)](https://ci.appveyor.com/project/seamys/pushnotifications)
+腾讯信鸽推送 [![Build status](https://ci.appveyor.com/api/projects/status/u8nrbj9yr5lt34vw?svg=true)](https://ci.appveyor.com/project/seamys/pushnotifications)
 
 ``` csharp
 
