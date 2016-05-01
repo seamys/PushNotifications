@@ -58,6 +58,6 @@ artifacts:
 # on successful build
 on_success:
   - ps: Import-Module .\build\psake.psm1
-  - ps: Invoke-Psake .\build\build.ps1 Publish-Nuget -properties @{"NugetApiKey"=$env:APIKEY;"NugetSource"=$env:SOURCE;"AppVeyorPullRequestNumber"=$env:APPVEYOR_PULL_REQUEST_NUMBER}
+  - ps: Invoke-Psake .\build\build.ps1 Publish-Nuget -properties @{"NugetApiKey"=$env:APIKEY;"NugetSource"=$env:SOURCE}
     on: 
       branch: master
