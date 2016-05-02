@@ -24,26 +24,34 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using PushNotifications.Schema;
+using RichardSzalay.MockHttp;
 
 namespace PushNotifications.Test
 {
     [TestFixture]
     public class PushAndroidClientTests
     {
-        [SetUp]
-        public void SetUp()
-        {
-            DeviceToken = "####";
-        }
+
 
         protected string DeviceToken;
+
+        protected string AccessId { get; set; }
+
+        protected string SecretKey { get; set; }
 
         protected PushClient GetClient()
         {
             return new PushClient("####", "####");
+        }
+
+        [SetUp]
+        public void SetUp()
+        {
+            DeviceToken = "####";
         }
 
         [TestCase("The time",
@@ -166,6 +174,15 @@ namespace PushNotifications.Test
             client.HttpCallback += Client_HttpCallback;
             var result = client.PushSingleDeviceAsync(DeviceToken, notification).Result;
             Assert.NotNull(result);
+        }
+
+        [Test]
+        public async Task CancelTimingTaskTest()
+        {
+            var httpHandler = new MockHttpMessageHandler();
+            httpHandler.When("http://openapi.xg.qq.com/v2/push/cancel_timing_task").Respond("application/json", "{ status:0 }");
+            var client = new PushClient(AccessId, SecretKey, httpHandler);
+            var user = await client.CancelTimingTaskAsync("any_push_id");
         }
     }
 }

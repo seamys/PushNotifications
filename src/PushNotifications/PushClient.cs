@@ -71,6 +71,8 @@ namespace PushNotifications
         /// </summary>
         protected string SecretKey;
 
+        protected HttpMessageHandler HttpHandler;
+
         /// <see cref="PushClient" />
         /// <summary>
         /// 构造方法
@@ -84,6 +86,23 @@ namespace PushNotifications
             SecretKey = secretKey;
             AccessId = accessId;
             ExpireTime = expireTime;
+        }
+
+        /// <see cref="PushClient" />
+        /// <summary>
+        /// 指定 HttpMessageHandler 构造方法 
+        /// </summary>
+        /// <param name="accessId">accessId</param>
+        /// <param name="secretKey">secretKey</param>
+        /// <param name="httpHandler"> HttpMessageHandler 类</param>
+        /// <param name="expireTime">通知在腾讯服务器中存储的时间</param>
+        /// <see cref="PushClient" />
+        public PushClient(string accessId, string secretKey, HttpMessageHandler httpHandler, uint expireTime = 86400)
+        {
+            SecretKey = secretKey;
+            AccessId = accessId;
+            ExpireTime = expireTime;
+            HttpHandler = httpHandler;
         }
 
         /// <summary>
@@ -374,7 +393,7 @@ namespace PushNotifications
         {
             var sign = Signature(url, "POST", param);
             param.Add("sign", sign);
-            using (var client = new HttpClient())
+            using (var client = HttpHandler != null ? new HttpClient(HttpHandler) : new HttpClient())
             {
                 var response = await client.PostAsync(url, new FormUrlEncodedContent(param));
                 string content = await response.Content.ReadAsStringAsync();
