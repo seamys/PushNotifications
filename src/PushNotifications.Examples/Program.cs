@@ -300,7 +300,7 @@ namespace PushNotifications.Examples
         private static void Client_HttpCallback(string url, Dictionary<string, string> param, string content)
         {
             Console.WriteLine(url);
-            Console.WriteLine(url);
+            Console.WriteLine(content);
         }
     }
 }
