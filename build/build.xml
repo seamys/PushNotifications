@@ -1,7 +1,7 @@
 <projects>
   <project>
     <name>PushNotifications.Xinge</name>
-    <version>1.2.2.1</version>
+    <version>1.2.2.3</version>
     <folder>..\src\PushNotifications</folder>
     <projfile>PushNotifications.csproj</projfile>
     <outputs>
