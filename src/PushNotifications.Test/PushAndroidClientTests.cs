@@ -139,12 +139,20 @@ namespace PushNotifications.Test
             //to do
         }
 
-        public void PushSingleAccountAsyncTest(string alert, int badge)
+        [TestCase("http://openapi.xg.qq.com/v2/push/single_account", "13367241961", "message title", "message content")]
+        public void PushSingleAccountAsyncTest(string url, string account, string title, string content)
         {
-            var client = GetClient();
-            var result = client.PushSingleAccountAsync("13367241961", new PayloadNotification(alert, 1)).Result;
+            var dic = new Dictionary<string, string>
+            {
+                {"account", account},
+                {"message", "{\"title\":\"message title\",\"content\":\"message content\"}"},
+                {"expire_time", "86400"},
+                {"message_type", "1"},
+                {"multi_pkg", "1"}
+            };
+            var client = GetClient(url, dic.ToList(), new { ret_code = 0, err_msg = "ok" });
+            var result = client.PushSingleAccountAsync(account, new AndroidNotification(title, content)).Result;
             Assert.NotNull(result);
-            Assert.AreEqual(result, 0);
         }
 
         [Test]

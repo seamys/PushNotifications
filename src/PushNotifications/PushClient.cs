@@ -142,8 +142,26 @@ namespace PushNotifications
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> PushSingleAccountAsync(string account, Notification msg)
         {
+            return PushSingleAccountAsync(account, msg, DateTime.Now.AddDays(-1));
+        }
+
+        /// <summary>
+        /// 单个帐号指定时间推送，如果时间小于当前时间将立即发送
+        /// URL: /v2/push/single_account
+        /// </summary>
+        /// <remarks>设备的账户或别名由终端SDK在调用推送注册接口时设置，详情参考终端SDK文档。</remarks>
+        /// <param name="account">针对某一账号推送，帐号可以是qq号，邮箱号，openid，手机号等各种类型</param>
+        /// <param name="msg">消息体</param>
+        /// <param name="dateTime">指定发送时间</param>
+        /// <returns>腾讯服务器返回内容(未格式化)</returns>
+        public Task<string> PushSingleAccountAsync(string account, Notification msg, DateTime dateTime)
+        {
             var param = InitParams(msg);
             param.Add("account", account);
+            if (dateTime > DateTime.Now)
+            {
+                param.Add("send_time", dateTime.ToString("yyyy-MM-dd HH:mm:ss"));
+            }
             return RestfulPost(GV.PUSHSINGLEACCOUNT, param);
         }
 
@@ -359,7 +377,7 @@ namespace PushNotifications
         {
             TryThrowArgumentException(nameof(pushId), pushId);
 
-             var param = InitParams();
+            var param = InitParams();
             param.Add("push_id", pushId);
             return RestfulPost(GV.DELETEOFFLINEPUSH, param);
         }
