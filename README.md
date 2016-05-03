@@ -3,8 +3,8 @@
 PushNotifications SDK 封装了腾讯信鸽推送服务端所有 v2.0 API RestAPI (http://xg.qq.com/) .
 基于.NET 4.5框架。
 
-[![AppVeyor branch](https://img.shields.io/appveyor/ci/seamys/pushnotifications/master.svg?maxAge=2592000)](https://ci.appveyor.com/project/seamys/pushnotifications)
-[![NuGet](https://img.shields.io/nuget/v/PushNotifications.Xinge.svg?maxAge=2592000)](https://www.nuget.org/packages/PushNotifications.Xinge/)
+[![AppVeyor branch](https://img.shields.io/appveyor/ci/seamys/pushnotifications/master.svg)](https://ci.appveyor.com/project/seamys/pushnotifications)
+[![NuGet](https://img.shields.io/nuget/v/PushNotifications.Xinge.svg)](https://www.nuget.org/packages/PushNotifications.Xinge/)
 
 ## 快速安装
 
