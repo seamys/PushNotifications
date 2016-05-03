@@ -71,8 +71,6 @@ namespace PushNotifications
         /// </summary>
         protected string SecretKey;
 
-        protected HttpMessageHandler HttpHandler;
-
         /// <see cref="PushClient" />
         /// <summary>
         /// 构造方法
@@ -88,27 +86,26 @@ namespace PushNotifications
             ExpireTime = expireTime;
         }
 
-        /// <see cref="PushClient" />
-        /// <summary>
-        /// 指定 HttpMessageHandler 构造方法 
-        /// </summary>
-        /// <param name="accessId">accessId</param>
-        /// <param name="secretKey">secretKey</param>
-        /// <param name="httpHandler"> HttpMessageHandler 类</param>
-        /// <param name="expireTime">通知在腾讯服务器中存储的时间</param>
-        /// <see cref="PushClient" />
-        public PushClient(string accessId, string secretKey, HttpMessageHandler httpHandler, uint expireTime = 86400)
-        {
-            SecretKey = secretKey;
-            AccessId = accessId;
-            ExpireTime = expireTime;
-            HttpHandler = httpHandler;
-        }
-
         /// <summary>
         /// Http 响应完成后会触发此事件
         /// </summary>
         public event HttpEvent HttpCallback;
+
+        /// <summary>
+        /// http 处理类
+        /// </summary>
+        public HttpMessageHandler HttpHandler { get; set; }
+
+        /// <summary>
+        /// 时间差
+        /// </summary>
+        public uint Timestamp { get; set; }
+
+        /// <summary>
+        /// 配合timestamp确定请求的有效期，单位为秒，最大值为600。
+        /// 若不设置此参数或参数值非法，则按默认值600秒计算有效期
+        /// </summary>
+        public uint ValidTime { get; set; }
 
         /// <summary>
         /// 设置是否是开发环境
@@ -156,8 +153,7 @@ namespace PushNotifications
         /// </summary>
         /// <param name="accounts">用户设备列表别名</param>
         /// <param name="msg">推送通知</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="Exception">推送失败</exception>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public async Task<string> PushMultiAccountAsync(List<string> accounts, Notification msg)
         {
@@ -214,8 +210,7 @@ namespace PushNotifications
         /// </summary>
         /// <param name="devices">token集合,单次发送token不超过1000个</param>
         /// <param name="msg">消息体</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="Exception">批量推送失败</exception>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public async Task<string> PushMultiDeviceAsync(List<string> devices, Notification msg)
         {
@@ -256,14 +251,15 @@ namespace PushNotifications
         /// 查询应用某个标签下关联的设备数
         /// URL: /v2/tags/query_tag_token_num
         /// </summary>
-        /// <param name="start">开始值,默认0 </param>
-        /// <param name="limit">限制数量</param>
+        /// <param name="tag">标签</param>
+        /// <exception cref="ArgumentException">tag 不能为空或者 null </exception>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
-        public Task<string> QueryTagsTokenAsync(uint start, uint limit)
+        public Task<string> QueryTagsTokenAsync(string tag)
         {
+            TryThrowArgumentException(nameof(tag), tag);
+
             var param = InitParams();
-            param.Add("start", (start > 0 ? start : 0).ToString());
-            param.Add("start", (limit > 100 ? 10 : limit).ToString());
+            param.Add("tag", tag);
             return RestfulPost(GV.QUERYTAGTOKENNUM, param);
         }
 
@@ -272,12 +268,30 @@ namespace PushNotifications
         /// URL: /v2/tags/query_token_tags
         /// </summary>
         /// <param name="deviceToken">device_token</param>
+        /// <exception cref="ArgumentException">deviceToken 为空或者 null</exception>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> QueryTokenTagsAsync(string deviceToken)
         {
+            TryThrowArgumentException(nameof(deviceToken), deviceToken);
+
             var param = InitParams();
             param.Add("device_token", deviceToken);
             return RestfulPost(GV.QUERYTOKENTAGS, param);
+        }
+
+        /// <summary>
+        /// 查询应用设置的标签
+        /// URL: /v2/tags/query_app_tags
+        /// </summary>
+        /// <param name="start">开始值,默认0 </param>
+        /// <param name="limit">限制数量</param>
+        /// <returns>腾讯服务器返回内容(未格式化)</returns>
+        public Task<string> QueryTagsAsync(uint start, uint limit)
+        {
+            var param = InitParams();
+            param.Add("start", start.ToString());
+            param.Add("limit", (limit > 100 ? 100 : limit).ToString());
+            return RestfulPost(GV.QUERYTAGS, param);
         }
 
         /// <summary>
@@ -285,9 +299,12 @@ namespace PushNotifications
         /// URL: /v2/push/cancel_timing_task
         /// </summary>
         /// <param name="pushId">任务Id</param>
+        /// <exception cref="ArgumentException">push_id 为空或者 null</exception>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> CancelTimingTaskAsync(string pushId)
         {
+            TryThrowArgumentException(nameof(pushId), pushId);
+
             var param = InitParams();
             param.Add("push_id", pushId);
             return RestfulPost(GV.CANCELTIMINGPUSH, param);
@@ -336,10 +353,13 @@ namespace PushNotifications
         /// 删除群发推送任务的离线消息(/v2/push/delete_offline_msg)
         /// </summary>
         /// <param name="pushId">任务ID</param>
+        /// <exception cref="ArgumentException">pushId 不能为空或者 null</exception>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> DeleteOfflineAsync(string pushId)
         {
-            var param = InitParams();
+            TryThrowArgumentException(nameof(pushId), pushId);
+
+             var param = InitParams();
             param.Add("push_id", pushId);
             return RestfulPost(GV.DELETEOFFLINEPUSH, param);
         }
@@ -352,6 +372,8 @@ namespace PushNotifications
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> DeleteAccountTokensAsync(string account, string deviceToken)
         {
+            TryThrowArgumentException("account 或 deviceToken 不能为空或者null.", account, deviceToken);
+
             var param = InitParams();
             param.Add("account", account);
             param.Add("device_token", deviceToken);
@@ -366,6 +388,8 @@ namespace PushNotifications
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> DeleteAccountTokensAsync(string account)
         {
+            TryThrowArgumentException(nameof(account), account);
+
             var param = InitParams();
             param.Add("account", account);
             return RestfulPost(GV.DELETEALLTOKENSOFACCOUNT, param);
@@ -381,6 +405,26 @@ namespace PushNotifications
         {
             var param = InitParams(msg);
             return RestfulPost(GV.CREATEMULTIPUSH, param);
+        }
+
+        /// <summary>
+        /// 获取签名
+        /// </summary>
+        /// <param name="url">访问URL</param>
+        /// <param name="method">HTTP Method</param>
+        /// <param name="param">http 参数</param>
+        /// <returns>返回签名</returns>
+        public string Signature(string url, string method, Dictionary<string, string> param)
+        {
+            var builder = new StringBuilder();
+            builder.Append(method);
+            builder.Append(url.Replace("http://", string.Empty));
+            foreach (var item in param.OrderBy(x => x.Key, StringComparer.Ordinal))
+            {
+                builder.Append($"{item.Key}={item.Value}");
+            }
+            builder.Append(SecretKey);
+            return Utils.Md5(builder.ToString());
         }
 
         /// <summary>
@@ -403,44 +447,26 @@ namespace PushNotifications
         }
 
         /// <summary>
-        /// 获取签名
-        /// </summary>
-        /// <param name="url">访问URL</param>
-        /// <param name="method">HTTP Method</param>
-        /// <param name="param">http 参数</param>
-        /// <returns>返回签名</returns>
-        protected string Signature(string url, string method, Dictionary<string, string> param)
-        {
-            var builder = new StringBuilder();
-            builder.Append(method);
-            builder.Append(url.Replace("http://", string.Empty));
-            foreach (var item in param.OrderBy(x => x.Key, StringComparer.Ordinal))
-            {
-                builder.Append($"{item.Key}={item.Value}");
-            }
-            builder.Append(SecretKey);
-            return Utils.Md5(builder.ToString());
-        }
-
-        /// <summary>
         /// 初始化参数
         /// </summary>
         /// <param name="msg">消息</param>
         /// <returns>通用参数</returns>
         protected Dictionary<string, string> InitParams(Notification msg = null)
         {
-            var currentTimestamp =
-                (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds.ToString(
-                    CultureInfo.InvariantCulture);
+            if (Timestamp == 0)
+            {
+                Timestamp = (uint)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
+            }
+            uint time = ValidTime > 600 ? 600 : ValidTime;
             var param = new Dictionary<string, string>
             {
-                {"access_id", AccessId},
-                {"timestamp", currentTimestamp}
+                { "access_id", AccessId },
+                { "timestamp", Timestamp.ToString() },
+                { "valid_time", time.ToString() }
             };
             if (msg != null)
             {
                 param.Add("message", msg.ToJson());
-
                 param.Add("expire_time", ExpireTime.ToString());
                 if (msg is AndroidNotification)
                 {
@@ -454,6 +480,19 @@ namespace PushNotifications
                 }
             }
             return param;
+        }
+
+        /// <summary>
+        ///  工具方法测试数据是否为空
+        /// </summary>
+        /// <param name="message">提示消息</param>
+        /// <param name="values">需要检查的值</param>
+        protected void TryThrowArgumentException(string message, params string[] values)
+        {
+            if (values.Any(string.IsNullOrWhiteSpace))
+            {
+                throw new ArgumentException(message);
+            }
         }
     }
 }

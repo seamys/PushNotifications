@@ -81,15 +81,16 @@ namespace PushNotifications
         /// 获取批量推送 PushId
         /// </summary>
         /// <param name="content">响应内容</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="Exception">提交失败</exception>
         /// <returns>字符串 PushId</returns>
         public static string GetPushId(string content)
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(content))
-                    throw new ArgumentNullException($"未能从内容{content}获取到 push_id");
+                {
+                    throw new Exception($"未能从内容{content}获取到 push_id");
+                }
                 var token = JToken.Parse(content);
                 return token["result"]["push_id"].Value<string>();
             }
@@ -97,7 +98,6 @@ namespace PushNotifications
             {
                 throw new Exception($"未能从内容{content}获取到 push_id", e);
             }
-
         }
     }
 }

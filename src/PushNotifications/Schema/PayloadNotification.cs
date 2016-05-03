@@ -40,7 +40,7 @@ namespace PushNotifications.Schema
         /// <param name="alert">消息体内容</param>
         public PayloadNotification(string alert)
         {
-            Alert = new Alert {Body = alert};
+            Alert = new Alert { Body = alert };
             CustomItems = new Dictionary<string, object>();
         }
 
@@ -51,7 +51,7 @@ namespace PushNotifications.Schema
         /// <param name="badge">角标</param>
         public PayloadNotification(string alert, int badge)
         {
-            Alert = new Alert {Body = alert};
+            Alert = new Alert { Body = alert };
             Badge = badge;
             CustomItems = new Dictionary<string, object>();
         }
@@ -64,7 +64,7 @@ namespace PushNotifications.Schema
         /// <param name="sound">通知声音</param>
         public PayloadNotification(string alert, int badge, string sound)
         {
-            Alert = new Alert {Body = alert};
+            Alert = new Alert { Body = alert };
             Badge = badge;
             Sound = sound;
             CustomItems = new Dictionary<string, object>();
