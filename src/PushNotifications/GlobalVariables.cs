@@ -121,7 +121,7 @@ namespace PushNotifications
         /// 批量帐号推送
         /// URL: /v2/push/create_multipush
         /// </summary>
-        public const string PUSHACCOUNTLISTMULTIPLE = "http://openapi.xg.qq.com/v2/push/account_list_multiple";
+        public const string PUSHACCOUNTLISTMULTIPLE = "http://openapi.xg.qq.com/v2/push/account_list";
 
         /// <summary>
         /// 批量设备推送

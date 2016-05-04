@@ -133,6 +133,67 @@ namespace PushNotifications
         }
 
         /// <summary>
+        /// 推送到多个设备
+        /// /v2/push/device_list_multiple
+        /// </summary>
+        /// <param name="devices">token集合,单次发送token不超过1000个</param>
+        /// <param name="pushId">推送Id</param>
+        /// <exception cref="Exception">批量推送失败</exception>
+        /// <returns>腾讯服务器返回内容(未格式化)</returns>
+        public async Task<string> PushMultiDeviceAsync(IEnumerable<string> devices, string pushId)
+        {
+            var param = InitParams();
+            param.Add("device_list", JsonConvert.SerializeObject(devices));
+            param.Add("push_id", pushId);
+            return await RestfulPost(GV.PUSHDEVICELISTMULTIPLE, param);
+        }
+
+        /// <summary>
+        /// 推送到多个设备（快捷方法）
+        /// URL: /v2/push/create_multipush
+        /// /v2/push/device_list_multiple
+        /// </summary>
+        /// <param name="devices">token集合,单次发送token不超过1000个</param>
+        /// <param name="msg">消息体</param>
+        /// <exception cref="Exception">批量推送失败</exception>
+        /// <returns>腾讯服务器返回内容(未格式化)</returns>
+        public async Task<string> PushMultiDeviceAsync(IEnumerable<string> devices, Notification msg)
+        {
+            var pushId = Utils.GetPushId(await CreateMultiPushAsync(msg));
+            return await PushMultiDeviceAsync(devices, pushId);
+        }
+
+        /// <summary>
+        /// 全量设备推送
+        /// URL: /v2/push/all_device
+        /// </summary>
+        /// <param name="msg">推送通知</param>
+        /// <returns>腾讯服务器返回内容(未格式化)</returns>
+        public Task<string> PushAllDeviceAsync(Notification msg)
+        {
+            return PushAllDeviceAsync(msg, 0, 0);
+        }
+
+        /// <summary>
+        /// 全量设备推送
+        /// URL: /v2/push/all_device
+        /// </summary>
+        /// <param name="msg">推送通知</param>
+        /// <param name="loopTimes">循环任务执行的次数，取值[1, 15]</param>
+        /// <param name="loopInterval">循环任务的执行间隔，以天为单位，取值[1, 14]</param>
+        /// <returns>腾讯服务器返回内容(未格式化)</returns>
+        public Task<string> PushAllDeviceAsync(Notification msg, int loopTimes, int loopInterval)
+        {
+            var param = InitParams(msg);
+            if (loopTimes > 0 && loopTimes < 16 && loopInterval > 0 && loopInterval < 15)
+            {
+                param.Add("loop_times", loopTimes.ToString());
+                param.Add("loop_interval", loopInterval.ToString());
+            }
+            return RestfulPost(GV.PUSHALLDEVICE, param);
+        }
+
+        /// <summary>
         /// 单个帐号推送
         /// URL: /v2/push/single_account
         /// </summary>
@@ -170,32 +231,29 @@ namespace PushNotifications
         /// URL: /v2/push/account_list_multiple
         /// </summary>
         /// <param name="accounts">用户设备列表别名</param>
-        /// <param name="msg">推送通知</param>
+        /// <param name="pushId">推送任务Id</param>
         /// <exception cref="Exception">推送失败</exception>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
-        public async Task<string> PushMultiAccountAsync(List<string> accounts, Notification msg)
+        public async Task<string> PushMultiAccountAsync(IEnumerable<string> accounts, string pushId)
         {
-            var pushId = Utils.GetPushId(await CreateMultiPushAsync(msg));
-            if (string.IsNullOrWhiteSpace(pushId))
-            {
-                return JsonConvert.SerializeObject(new { ret_code = -1 });
-            }
-            var param = InitParams(msg);
+            var param = InitParams();
             param.Add("account_list", JsonConvert.SerializeObject(accounts));
             param.Add("push_id", pushId);
             return await RestfulPost(GV.PUSHACCOUNTLISTMULTIPLE, param);
         }
 
         /// <summary>
-        /// 全量设备推送
-        /// URL: /v2/push/all_device
+        /// 批量推送消息（快捷方法）
+        /// URL: /v2/push/account_list_multiple
         /// </summary>
+        /// <param name="accounts">用户设备列表别名</param>
         /// <param name="msg">推送通知</param>
+        /// <exception cref="Exception">推送失败</exception>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
-        public Task<string> PushAllDeviceAsync(Notification msg)
+        public async Task<string> PushMultiAccountAsync(IEnumerable<string> accounts, Notification msg)
         {
-            var param = InitParams(msg);
-            return RestfulPost(GV.PUSHALLDEVICE, param);
+            var pushId = Utils.GetPushId(await CreateMultiPushAsync(msg));
+            return await PushMultiAccountAsync(accounts, pushId);
         }
 
         /// <summary>
@@ -208,12 +266,12 @@ namespace PushNotifications
         /// <param name="loopTimes">循环任务执行的次数，取值[1, 15]</param>
         /// <param name="loopInterval">循环任务的执行间隔，以天为单位，取值[1, 14]。loop_times和loop_interval一起表示任务的生命周期，不可超过14天</param>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
-        public Task<string> PushTagsDeviceAsync(List<string> tags, Notification msg, Operators operators = Operators.OR, int loopTimes = 0, int loopInterval = 0)
+        public Task<string> PushTagsDeviceAsync(IEnumerable<string> tags, Notification msg, Operators operators = Operators.OR, int loopTimes = 0, int loopInterval = 0)
         {
             var param = InitParams(msg);
             param.Add("tags_list", JsonConvert.SerializeObject(tags));
             param.Add("tags_op", operators == Operators.AND ? "AND" : "OR");
-            if (loopTimes > 0 && loopInterval < 16 && loopInterval > 0 && loopInterval < 15)
+            if (loopTimes > 0 && loopTimes < 16 && loopInterval > 0 && loopInterval < 15)
             {
                 param.Add("loop_times", loopTimes.ToString());
                 param.Add("loop_interval", loopInterval.ToString());
@@ -222,33 +280,15 @@ namespace PushNotifications
         }
 
         /// <summary>
-        /// 推送到多个设备
-        /// URL: /v2/push/create_multipush
-        /// /v2/push/device_list_multiple
-        /// </summary>
-        /// <param name="devices">token集合,单次发送token不超过1000个</param>
-        /// <param name="msg">消息体</param>
-        /// <exception cref="Exception">批量推送失败</exception>
-        /// <returns>腾讯服务器返回内容(未格式化)</returns>
-        public async Task<string> PushMultiDeviceAsync(List<string> devices, Notification msg)
-        {
-            var pushId = Utils.GetPushId(await CreateMultiPushAsync(msg));
-            var param = InitParams();
-            param.Add("device_list", JsonConvert.SerializeObject(devices));
-            param.Add("push_id", pushId);
-            return await RestfulPost(GV.PUSHDEVICELISTMULTIPLE, param);
-        }
-
-        /// <summary>
         /// 查询群发消息发送状态
         /// URL: /v2/push/get_msg_status
         /// </summary>
         /// <param name="pushIds">推送任务id集合</param>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
-        public Task<string> QueryPushStatusAsync(List<string> pushIds)
+        public Task<string> QueryPushStatusAsync(IEnumerable<string> pushIds)
         {
-            var array = new JArray();
-            pushIds.ForEach(x => array.Add(new JObject(new { push_id = x })));
+            var array = new List<object>();
+            pushIds.ToList().ForEach(x => array.Add(new { push_id = x }));
             var param = InitParams();
             param.Add("push_id", JsonConvert.SerializeObject(array));
             return RestfulPost(GV.QUERYPUSHSTATUS, param);
@@ -274,7 +314,7 @@ namespace PushNotifications
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> QueryTagsTokenAsync(string tag)
         {
-            TryThrowArgumentException(nameof(tag), tag);
+            CheckValue(nameof(tag), tag);
 
             var param = InitParams();
             param.Add("tag", tag);
@@ -290,7 +330,7 @@ namespace PushNotifications
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> QueryTokenTagsAsync(string deviceToken)
         {
-            TryThrowArgumentException(nameof(deviceToken), deviceToken);
+            CheckValue(nameof(deviceToken), deviceToken);
 
             var param = InitParams();
             param.Add("device_token", deviceToken);
@@ -321,7 +361,7 @@ namespace PushNotifications
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> CancelTimingTaskAsync(string pushId)
         {
-            TryThrowArgumentException(nameof(pushId), pushId);
+            CheckValue(nameof(pushId), pushId);
 
             var param = InitParams();
             param.Add("push_id", pushId);
@@ -334,7 +374,7 @@ namespace PushNotifications
         /// </summary>
         /// <param name="tags">每次调用最多允许设置20对，每个对里面标签在前，token在后。注意标签最长50字节，不可包含空格；真实token长度至少40字节</param>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
-        public Task<string> SetTagsAsync(Dictionary<string, List<string>> tags)
+        public Task<string> SetTagsAsync(Dictionary<string, IEnumerable<string>> tags)
         {
             var param = InitParams();
             var tagsParam = Utils.ToTagParams(tags);
@@ -359,7 +399,7 @@ namespace PushNotifications
         /// </summary>
         /// <param name="tags">每次调用最多允许设置20对，每个对里面标签在前，token在后。注意标签最长50字节，不可包含空格；真实token长度至少40字节。</param>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
-        public Task<string> DeleteTagsAsync(Dictionary<string, List<string>> tags)
+        public Task<string> DeleteTagsAsync(Dictionary<string, IEnumerable<string>> tags)
         {
             var param = InitParams();
             var tagsParam = Utils.ToTagParams(tags);
@@ -375,7 +415,7 @@ namespace PushNotifications
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> DeleteOfflineAsync(string pushId)
         {
-            TryThrowArgumentException(nameof(pushId), pushId);
+            CheckValue(nameof(pushId), pushId);
 
             var param = InitParams();
             param.Add("push_id", pushId);
@@ -390,7 +430,7 @@ namespace PushNotifications
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> DeleteAccountTokensAsync(string account, string deviceToken)
         {
-            TryThrowArgumentException("account 或 deviceToken 不能为空或者null.", account, deviceToken);
+            CheckValue("account 或 deviceToken 不能为空或者null.", account, deviceToken);
 
             var param = InitParams();
             param.Add("account", account);
@@ -406,7 +446,7 @@ namespace PushNotifications
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> DeleteAccountTokensAsync(string account)
         {
-            TryThrowArgumentException(nameof(account), account);
+            CheckValue(nameof(account), account);
 
             var param = InitParams();
             param.Add("account", account);
@@ -442,6 +482,7 @@ namespace PushNotifications
                 builder.Append($"{item.Key}={item.Value}");
             }
             builder.Append(SecretKey);
+            Console.WriteLine(builder);
             return Utils.Md5(builder.ToString());
         }
 
@@ -505,7 +546,7 @@ namespace PushNotifications
         /// </summary>
         /// <param name="message">提示消息</param>
         /// <param name="values">需要检查的值</param>
-        protected void TryThrowArgumentException(string message, params string[] values)
+        protected void CheckValue(string message, params string[] values)
         {
             if (values.Any(string.IsNullOrWhiteSpace))
             {

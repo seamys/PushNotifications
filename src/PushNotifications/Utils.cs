@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
@@ -42,18 +43,18 @@ namespace PushNotifications
         /// </summary>
         /// <param name="tags">标签设备分组</param>
         /// <returns>格式化后的json 字符串</returns>
-        public static string ToTagParams(Dictionary<string, List<string>> tags)
+        public static string ToTagParams(Dictionary<string, IEnumerable<string>> tags)
         {
             var list = new List<List<string>>();
 
             foreach (var item in tags)
             {
-                if (string.IsNullOrWhiteSpace(item.Key) || item.Value == null || item.Value.Count == 0)
+                if (string.IsNullOrWhiteSpace(item.Key) || item.Value == null)
                 {
                     continue;
                 }
                 var sub = new List<string> { item.Key };
-                item.Value.ForEach(x => sub.Add(x));
+                item.Value.ToList().ForEach(x => sub.Add(x));
                 list.Add(sub);
             }
             return JsonConvert.SerializeObject(list);

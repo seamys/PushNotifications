@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -52,7 +53,18 @@ namespace PushNotifications.Test
 
         protected PushClient GetClient(string url, List<KeyValuePair<string, string>> kvs, object content)
         {
-            var httpHandler = new MockHttpMessageHandler();
+            MockHttpMessageHandler httpHandler = new MockHttpMessageHandler();
+            InitClient(url, kvs, content, ref httpHandler);
+            return new PushClient(AccessId, SecretKey)
+            {
+                Timestamp = 1462278512,
+                ValidTime = 600,
+                HttpHandler = httpHandler
+            };
+        }
+
+        protected void InitClient(string url, List<KeyValuePair<string, string>> kvs, object content, ref MockHttpMessageHandler httpHandler)
+        {
             MockedRequest request = httpHandler.When(url);
             var list = new List<KeyValuePair<string, string>>()
             {
@@ -72,6 +84,8 @@ namespace PushNotifications.Test
             }
             builder.Append(SecretKey);
 
+            Console.WriteLine(builder);
+
             string signature = Utils.Md5(builder.ToString());
 
             list.Add(new KeyValuePair<string, string>("sign", signature));
@@ -79,13 +93,11 @@ namespace PushNotifications.Test
             request.WithFormData(list);
 
             request.Respond("application/json", JsonConvert.SerializeObject(content));
+        }
 
-            return new PushClient(AccessId, SecretKey)
-            {
-                Timestamp = 1462278512,
-                ValidTime = 600,
-                HttpHandler = httpHandler
-            };
+        public object GetResult(object result)
+        {
+            return new { ret_code = 0, err_msg = "ok", result };
         }
 
         [SetUp]
@@ -94,65 +106,6 @@ namespace PushNotifications.Test
             DeviceToken = "DeviceToken-abcdefg";
             AccessId = "AccessId-123";
             SecretKey = "SecretKey-ABC";
-        }
-
-        [TestCase("The time",
-            "Time for individuals is consecutive and irreversible, but for the universe, just a repetitive circle。")]
-        public void PushSingleDeviceAsyncTest(string title, string content)
-        {
-            var client = GetClient();
-            client.HttpCallback += Client_HttpCallback;
-            var message = new AndroidNotification(title, content);
-            message.AddCustom("builder_id", 0);
-            message.AddCustom("vibrate", 0);
-            message.MessageType = MessageType.Notification;
-            var result = client.PushSingleDeviceAsync(DeviceToken, message).Result;
-            Assert.NotNull(result);
-        }
-
-        [TestCase("The time",
-            "Time for individuals is consecutive and irreversible, but for the universe, just a repetitive circle。")]
-        public void QueryDeviceCountAsyncTest(string title, string content)
-        {
-            var client = GetClient();
-            client.HttpCallback += Client_HttpCallback;
-            var result = client.QueryDeviceCountAsync().Result;
-            Assert.NotNull(result);
-        }
-
-        [TestCase("The time",
-            "Time for individuals is consecutive and irreversible, but for the universe, just a repetitive circle。")]
-        public void PushAllDeviceAsyncTest(string title, string content)
-        {
-            var client = GetClient();
-            client.HttpCallback += Client_HttpCallback;
-            var message = new AndroidNotification(title, content);
-            message.AddCustom("builder_id", 0);
-            message.AddCustom("vibrate", 0);
-            message.MessageType = MessageType.Notification;
-            var result = client.PushAllDeviceAsync(message).Result;
-            Assert.NotNull(result);
-        }
-
-        private void Client_HttpCallback(string url, Dictionary<string, string> param, string content)
-        {
-            //to do
-        }
-
-        [TestCase("http://openapi.xg.qq.com/v2/push/single_account", "13367241961", "message title", "message content")]
-        public void PushSingleAccountAsyncTest(string url, string account, string title, string content)
-        {
-            var dic = new Dictionary<string, string>
-            {
-                {"account", account},
-                {"message", "{\"title\":\"message title\",\"content\":\"message content\"}"},
-                {"expire_time", "86400"},
-                {"message_type", "1"},
-                {"multi_pkg", "1"}
-            };
-            var client = GetClient(url, dic.ToList(), new { ret_code = 0, err_msg = "ok" });
-            var result = client.PushSingleAccountAsync(account, new AndroidNotification(title, content)).Result;
-            Assert.NotNull(result);
         }
 
         [Test]
@@ -221,15 +174,292 @@ namespace PushNotifications.Test
                 notification.AddCustom(item.Key, item.Value);
             }
             var client = GetClient();
-            client.HttpCallback += Client_HttpCallback;
+            // client.HttpCallback += Client_HttpCallback;
             var result = client.PushSingleDeviceAsync(DeviceToken, notification).Result;
             Assert.NotNull(result);
         }
 
-        [TestCase("http://openapi.xg.qq.com/v2/tags/query_app_tags", 0u, 100u)]
-        [TestCase("http://openapi.xg.qq.com/v2/tags/query_app_tags", 2u, 101u)]
-        public void QueryTagsAsyncTest(string url, uint start, uint limit)
+        [TestCase("device-token-abc", "message title", "message content")]
+        public void PushSingleDeviceAsyncTest(string deviceToken, string title, string content)
         {
+            string url = "http://openapi.xg.qq.com/v2/push/single_device";
+            var dic = new Dictionary<string, string>
+            {
+                {"device_token", deviceToken},
+                {"message", "{\"title\":\"message title\",\"content\":\"message content\"}"},
+                {"expire_time", "86400"},
+                {"message_type", "1"},
+                {"multi_pkg", "1"}
+            };
+            var client = GetClient(url, dic.ToList(), GetResult(null));
+            var result = client.PushSingleDeviceAsync(deviceToken, new AndroidNotification(title, content)).Result;
+            Assert.NotNull(result);
+        }
+
+        [TestCase("message title", "message content")]
+        public void CreateMultiPush(string title, string content)
+        {
+            string url = "http://openapi.xg.qq.com/v2/push/create_multipush";
+            var dic = new Dictionary<string, string>
+            {
+                {"message", "{\"title\":\"message title\",\"content\":\"message content\"}"},
+                {"expire_time", "86400"},
+                {"message_type", "1"},
+                {"multi_pkg", "1"}
+            };
+            var client = GetClient(url, dic.ToList(), GetResult(new { push_id = "push_id-1" }));
+            var result = client.CreateMultiPushAsync(new AndroidNotification(title, content)).Result;
+            Assert.NotNull(result);
+        }
+
+        [TestCase(new[] { "device-1", "device-2" }, "push_id-1")]
+        public void PushMultiDeviceAsyncTest(string[] devices, string pushId)
+        {
+            string url = "http://openapi.xg.qq.com/v2/push/device_list_multiple";
+            var dic = new Dictionary<string, string>
+            {
+                { "device_list",JsonConvert.SerializeObject(devices)},
+                { "push_id", pushId}
+            };
+            var client = GetClient(url, dic.ToList(), GetResult(new { push_id = "push_id-1" }));
+            var result = client.PushMultiDeviceAsync(devices, pushId).Result;
+            Assert.NotNull(result);
+        }
+
+        [TestCase(new[] { "device-1", "device-2" }, "message title", "message content")]
+        public void PushMultiDeviceAsyncTest(string[] devices, string title, string content)
+        {
+            MockHttpMessageHandler httpHandler = new MockHttpMessageHandler();
+
+            var dic = new Dictionary<string, string>()
+            {
+                {"message", "{\"title\":\"message title\",\"content\":\"message content\"}"},
+                {"expire_time", "86400"},
+                {"message_type", "1"},
+                {"multi_pkg", "1"}
+            };
+            InitClient("http://openapi.xg.qq.com/v2/push/create_multipush", dic.ToList(), GetResult(new { push_id = "push_id-1" }), ref httpHandler);
+
+            dic = new Dictionary<string, string>
+             {
+                { "device_list",JsonConvert.SerializeObject(devices)},
+                { "push_id", "push_id-1"}
+            };
+            InitClient("http://openapi.xg.qq.com/v2/push/device_list_multiple", dic.ToList(), GetResult(new { push_id = "push_id-1" }), ref httpHandler);
+
+            var client = new PushClient(AccessId, SecretKey)
+            {
+                Timestamp = 1462278512,
+                ValidTime = 600,
+                HttpHandler = httpHandler
+            };
+
+            var result = client.PushMultiDeviceAsync(devices, new AndroidNotification(title, content)).Result;
+            Assert.NotNull(result);
+        }
+
+        [TestCase("message title", "message content")]
+        public void PushAllDeviceAsyncTest(string title, string content)
+        {
+            string url = "http://openapi.xg.qq.com/v2/push/all_device";
+            var dic = new Dictionary<string, string>
+            {
+                {"message", "{\"title\":\"message title\",\"content\":\"message content\"}"},
+                {"expire_time", "86400"},
+                {"message_type", "1"},
+                {"multi_pkg", "1"}
+            };
+            var client = GetClient(url, dic.ToList(), GetResult(new { push_id = "push_id~" }));
+            var result = client.PushAllDeviceAsync(new AndroidNotification(title, content)).Result;
+            Assert.NotNull(result);
+        }
+
+        [TestCase("message title", "message content", 10, 10)]
+        public void PushAllDeviceAsyncTest(string title, string content, int loopTimes, int loopInterval)
+        {
+            string url = "http://openapi.xg.qq.com/v2/push/all_device";
+            var dic = new Dictionary<string, string>
+            {
+                {"message", "{\"title\":\"message title\",\"content\":\"message content\"}"},
+                {"expire_time", "86400"},
+                {"message_type", "1"},
+                {"multi_pkg", "1"},
+                {"loop_times",loopTimes.ToString()},
+                {"loop_interval",loopInterval.ToString()}
+            };
+            var client = GetClient(url, dic.ToList(), GetResult(new { push_id = "push_id~" }));
+            var result = client.PushAllDeviceAsync(new AndroidNotification(title, content), loopTimes, loopInterval).Result;
+            Assert.NotNull(result);
+        }
+
+        [TestCase(new[] { "tag1", "tag2" }, "message title", "message content", Operators.AND, 10, 12)]
+        public void PushTagDeviceAsyncTest(string[] tags, string title, string content, Operators operators, int loopTimes, int loopInterval)
+        {
+            string url = "http://openapi.xg.qq.com/v2/push/tags_device";
+            var dic = new Dictionary<string, string>
+            {
+                {"message", "{\"title\":\"message title\",\"content\":\"message content\"}"},
+                {"expire_time", "86400"},
+                {"tags_list",JsonConvert.SerializeObject(tags)},
+                {"message_type", "1"},
+                {"tags_op",operators == Operators.AND?"AND":"OR"},
+                {"multi_pkg", "1"},
+                {"loop_times",loopTimes.ToString()},
+                {"loop_interval",loopInterval.ToString()}
+            };
+            var client = GetClient(url, dic.ToList(), GetResult(new { push_id = "push_id-1" }));
+            var result = client.PushTagsDeviceAsync(tags, new AndroidNotification(title, content), operators, loopTimes, loopInterval).Result;
+            Assert.NotNull(result);
+        }
+
+        [TestCase("13367241961", "message title", "message content")]
+        public void PushSingleAccountAsyncTest(string account, string title, string content)
+        {
+            string url = "http://openapi.xg.qq.com/v2/push/single_account";
+            var dic = new Dictionary<string, string>
+            {
+                {"account", account},
+                {"message", "{\"title\":\"message title\",\"content\":\"message content\"}"},
+                {"expire_time", "86400"},
+                {"message_type", "1"},
+                {"multi_pkg", "1"}
+            };
+            var client = GetClient(url, dic.ToList(), new { ret_code = 0, err_msg = "ok" });
+            var result = client.PushSingleAccountAsync(account, new AndroidNotification(title, content)).Result;
+            Assert.NotNull(result);
+        }
+
+        [TestCase(new[] { "account-1", "device-2" }, "push_id-1")]
+        public void PushMultiAccountAsyncTest(string[] accounts, string pushId)
+        {
+            string url = "http://openapi.xg.qq.com/v2/push/account_list";
+            var dic = new Dictionary<string, string>
+            {
+                { "account_list",JsonConvert.SerializeObject(accounts)},
+                { "push_id", pushId}
+            };
+            var client = GetClient(url, dic.ToList(), GetResult(new { push_id = "push_id-1" }));
+            var result = client.PushMultiAccountAsync(accounts, pushId).Result;
+            Assert.NotNull(result);
+        }
+
+        [TestCase(new[] { "account-1", "account-1" }, "message title", "message content")]
+        public void PushMultiAccountAsyncTest(string[] accounts, string title, string content)
+        {
+            MockHttpMessageHandler httpHandler = new MockHttpMessageHandler();
+
+            var dic = new Dictionary<string, string>()
+            {
+                {"message", "{\"title\":\"message title\",\"content\":\"message content\"}"},
+                {"expire_time", "86400"},
+                {"message_type", "1"},
+                {"multi_pkg", "1"}
+            };
+            InitClient("http://openapi.xg.qq.com/v2/push/create_multipush", dic.ToList(), GetResult(new { push_id = "push_id-1" }), ref httpHandler);
+
+            dic = new Dictionary<string, string>
+             {
+                { "account_list",JsonConvert.SerializeObject(accounts)},
+                { "push_id", "push_id-1"}
+            };
+            InitClient("http://openapi.xg.qq.com/v2/push/account_list", dic.ToList(), GetResult(new { push_id = "push_id-1" }), ref httpHandler);
+
+            var client = new PushClient(AccessId, SecretKey)
+            {
+                Timestamp = 1462278512,
+                ValidTime = 600,
+                HttpHandler = httpHandler
+            };
+
+            var result = client.PushMultiAccountAsync(accounts, new AndroidNotification(title, content)).Result;
+            Assert.NotNull(result);
+        }
+
+        [Test]
+        public void BatchSetAsyncTest()
+        {
+            var tagTokens = new Dictionary<string, IEnumerable<string>>()
+            {
+                {"tag1", new[] {"token1", "token2"}},
+                {"tag2", new[] {"token3", "token2"}}
+            };
+            var dic = new Dictionary<string, string>()
+            {
+                { "tag_token_list",Utils.ToTagParams(tagTokens)}
+            };
+            var client = GetClient("http://openapi.xg.qq.com/v2/tags/batch_set", dic.ToList(), GetResult(null));
+            var result = client.SetTagsAsync(tagTokens).Result;
+            Assert.NotNull(result);
+        }
+
+        [Test]
+        public void BatchDelAsyncTest()
+        {
+            var tagTokens = new Dictionary<string, IEnumerable<string>>()
+            {
+                {"tag1", new[] {"token1", "token2"}},
+                {"tag2", new[] {"token3", "token2"}}
+            };
+            var dic = new Dictionary<string, string>()
+            {
+                { "tag_token_list",Utils.ToTagParams(tagTokens)}
+            };
+            var client = GetClient("http://openapi.xg.qq.com/v2/tags/batch_del", dic.ToList(), GetResult(null));
+            var result = client.DeleteTagsAsync(tagTokens).Result;
+            Assert.NotNull(result);
+        }
+
+        [TestCase("account-a", "device_token-a-b")]
+        public void DelAccountTokensAsyncTest(string account, string deviceToken)
+        {
+            var dic = new Dictionary<string, string>()
+            {
+                { "account",account},
+                { "device_token",deviceToken}
+            };
+            var client = GetClient("http://openapi.xg.qq.com/v2/application/del_app_account_tokens", dic.ToList(), GetResult(new { tokens = new[] { "token-a-a", "token-a-c" } }));
+            var result = client.DeleteAccountTokensAsync(account, deviceToken).Result;
+            Assert.NotNull(result);
+        }
+
+        [TestCase("account-a")]
+        public void DelAccountAllTokensAsyncTest(string account)
+        {
+            var dic = new Dictionary<string, string>()
+            {
+                { "account",account}
+            };
+            var client = GetClient("http://openapi.xg.qq.com/v2/application/del_app_account_all_tokens", dic.ToList(), GetResult(null));
+            var result = client.DeleteAccountTokensAsync(account).Result;
+            Assert.NotNull(result);
+        }
+        [Test]
+        public void QueryMsgStatus()
+        {
+            var pushIds = new[] { "push-1", "push-2" };
+            var dic = new Dictionary<string, string>()
+            {
+                { "push_id",JsonConvert.SerializeObject(pushIds.Select(x=>new {push_id=x}))}
+            };
+            var client = GetClient("http://openapi.xg.qq.com/v2/push/get_msg_status", dic.ToList(), GetResult(new
+            {
+                list = new List<object>() { new
+                {
+                    push_id = "push-1",
+                    status = 2,
+                    start_time = "2016-05-04 22:40:44"
+                }
+                }
+            }));
+            var result = client.QueryPushStatusAsync(pushIds).Result;
+            Assert.NotNull(result);
+        }
+
+        [TestCase(0u, 100u)]
+        [TestCase(2u, 101u)]
+        public void QueryTagsAsyncTest(uint start, uint limit)
+        {
+            string url = "http://openapi.xg.qq.com/v2/tags/query_app_tags";
             var kvs = new List<KeyValuePair<string, string>>
             {
                 new KeyValuePair<string, string>("start",start.ToString()),
@@ -240,10 +470,11 @@ namespace PushNotifications.Test
             Assert.NotNull(user);
         }
 
-        [TestCase("http://openapi.xg.qq.com/v2/tags/query_token_tags", null)]
-        [TestCase("http://openapi.xg.qq.com/v2/tags/query_token_tags", "deviceToken-abc")]
-        public void QueryTokenTagsAsyncTest(string url, string deviceToken)
+        [TestCase(null)]
+        [TestCase("deviceToken-abc")]
+        public void QueryTokenTagsAsyncTest(string deviceToken)
         {
+            string url = "http://openapi.xg.qq.com/v2/tags/query_token_tags";
             var kvs = new List<KeyValuePair<string, string>>
             {
                 new KeyValuePair<string, string>("device_token",deviceToken)
@@ -261,10 +492,11 @@ namespace PushNotifications.Test
 
         }
 
-        [TestCase("http://openapi.xg.qq.com/v2/tags/query_tag_token_num", " ")]
-        [TestCase("http://openapi.xg.qq.com/v2/tags/query_tag_token_num", "tag1")]
-        public void QueryTagsTokenAsyncTest(string url, string tag)
+        [TestCase(" ")]
+        [TestCase("tag1")]
+        public void QueryTagsTokenAsyncTest(string tag)
         {
+            string url = "http://openapi.xg.qq.com/v2/tags/query_tag_token_num";
             var kvs = new List<KeyValuePair<string, string>>
             {
                 new KeyValuePair<string, string>("tag", tag)
@@ -281,10 +513,11 @@ namespace PushNotifications.Test
             }
         }
 
-        [TestCase("http://openapi.xg.qq.com/v2/push/delete_offline_msg", " ")]
-        [TestCase("http://openapi.xg.qq.com/v2/push/delete_offline_msg", "any_push_id")]
-        public void DeleteOfflineTest(string url, string pushId)
+        [TestCase(" ")]
+        [TestCase("any_push_id")]
+        public void DeleteOfflineTest(string pushId)
         {
+            string url = "http://openapi.xg.qq.com/v2/push/delete_offline_msg";
             var kvs = new List<KeyValuePair<string, string>>
             {
                 new KeyValuePair<string, string>("push_id", pushId)
@@ -301,10 +534,11 @@ namespace PushNotifications.Test
             }
         }
 
-        [TestCase("http://openapi.xg.qq.com/v2/push/cancel_timing_task", null)]
-        [TestCase("http://openapi.xg.qq.com/v2/push/cancel_timing_task", "any_push_id")]
-        public void CancelTimingTaskTest(string url, string pushId)
+        [TestCase(null)]
+        [TestCase("any_push_id")]
+        public void CancelTimingTaskTest(string pushId)
         {
+            string url = "http://openapi.xg.qq.com/v2/push/cancel_timing_task";
             var kvs = new List<KeyValuePair<string, string>>
             {
                 new KeyValuePair<string, string>("push_id", pushId)
