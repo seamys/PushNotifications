@@ -84,8 +84,6 @@ namespace PushNotifications.Test
             }
             builder.Append(SecretKey);
 
-            Console.WriteLine(builder);
-
             string signature = Utils.Md5(builder.ToString());
 
             list.Add(new KeyValuePair<string, string>("sign", signature));

@@ -482,7 +482,6 @@ namespace PushNotifications
                 builder.Append($"{item.Key}={item.Value}");
             }
             builder.Append(SecretKey);
-            Console.WriteLine(builder);
             return Utils.Md5(builder.ToString());
         }
 
