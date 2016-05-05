@@ -80,6 +80,12 @@ namespace PushNotifications.Schema
         }
 
         /// <summary>
+        /// 判断内容是否为空
+        /// </summary>
+        /// <returns>是否为空</returns>
+        public override bool IsEmpty => (string.IsNullOrWhiteSpace(Title) || string.IsNullOrWhiteSpace(Content));
+
+        /// <summary>
         /// 消息标题
         /// </summary>
         public string Title { get; set; }
@@ -88,15 +94,6 @@ namespace PushNotifications.Schema
         /// 消息内容
         /// </summary>
         public string Content { get; set; }
-
-        /// <summary>
-        /// 判断内容是否为空
-        /// </summary>
-        /// <returns>是否为空</returns>
-        public bool IsEmpty()
-        {
-            return string.IsNullOrWhiteSpace(Title) || string.IsNullOrWhiteSpace(Content);
-        }
 
         /// <summary>
         /// 转化string 方法
@@ -133,5 +130,7 @@ namespace PushNotifications.Schema
             }
             return json.ToString(Formatting.None, null);
         }
+
+
     }
 }

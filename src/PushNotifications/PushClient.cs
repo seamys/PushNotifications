@@ -127,6 +127,8 @@ namespace PushNotifications
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> PushSingleDeviceAsync(string deviceToken, Notification msg)
         {
+            CheckValue("deviceToken 或 msg 参数无效", () => msg.IsEmpty, deviceToken);
+
             var param = InitParams(msg);
             param.Add("device_token", deviceToken);
             return RestfulPost(GV.PUSHSINGLEDEVICE, param);
@@ -184,7 +186,9 @@ namespace PushNotifications
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> PushAllDeviceAsync(Notification msg, int loopTimes, int loopInterval)
         {
+
             var param = InitParams(msg);
+
             if (loopTimes > 0 && loopTimes < 16 && loopInterval > 0 && loopInterval < 15)
             {
                 param.Add("loop_times", loopTimes.ToString());
@@ -314,7 +318,7 @@ namespace PushNotifications
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> QueryTagsTokenAsync(string tag)
         {
-            CheckValue(nameof(tag), tag);
+            CheckValue(nameof(tag), null, tag);
 
             var param = InitParams();
             param.Add("tag", tag);
@@ -330,7 +334,7 @@ namespace PushNotifications
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> QueryTokenTagsAsync(string deviceToken)
         {
-            CheckValue(nameof(deviceToken), deviceToken);
+            CheckValue(nameof(deviceToken), null, deviceToken);
 
             var param = InitParams();
             param.Add("device_token", deviceToken);
@@ -361,7 +365,7 @@ namespace PushNotifications
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> CancelTimingTaskAsync(string pushId)
         {
-            CheckValue(nameof(pushId), pushId);
+            CheckValue(nameof(pushId), null, pushId);
 
             var param = InitParams();
             param.Add("push_id", pushId);
@@ -376,6 +380,8 @@ namespace PushNotifications
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> SetTagsAsync(Dictionary<string, IEnumerable<string>> tags)
         {
+            CheckValue(nameof(tags), () => tags.Count <= 0);
+
             var param = InitParams();
             var tagsParam = Utils.ToTagParams(tags);
             param.Add("tag_token_list", tagsParam);
@@ -389,6 +395,8 @@ namespace PushNotifications
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> QueryTokenAsync(string deviceToken)
         {
+            CheckValue(nameof(deviceToken), null, deviceToken);
+
             var param = InitParams();
             param.Add("device_token", deviceToken);
             return RestfulPost(GV.QUERYINFOOFTOKEN, param);
@@ -401,6 +409,8 @@ namespace PushNotifications
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> DeleteTagsAsync(Dictionary<string, IEnumerable<string>> tags)
         {
+            CheckValue(nameof(tags), () => tags.Count <= 0);
+
             var param = InitParams();
             var tagsParam = Utils.ToTagParams(tags);
             param.Add("tag_token_list", tagsParam);
@@ -415,7 +425,7 @@ namespace PushNotifications
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> DeleteOfflineAsync(string pushId)
         {
-            CheckValue(nameof(pushId), pushId);
+            CheckValue(nameof(pushId), null, pushId);
 
             var param = InitParams();
             param.Add("push_id", pushId);
@@ -427,10 +437,11 @@ namespace PushNotifications
         /// </summary>
         /// <param name="account">设备别名</param>
         /// <param name="deviceToken">device_token</param>
+        /// <exception cref="ArgumentException">account 或 deviceToken 为空</exception>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> DeleteAccountTokensAsync(string account, string deviceToken)
         {
-            CheckValue("account 或 deviceToken 不能为空或者null.", account, deviceToken);
+            CheckValue("account 或 deviceToken 不能为空或者null.", null, account, deviceToken);
 
             var param = InitParams();
             param.Add("account", account);
@@ -443,10 +454,11 @@ namespace PushNotifications
         /// URL: /v2/application/del_app_account_all_tokens
         /// </summary>
         /// <param name="account">设备别名(账号)</param>
+        /// <exception cref="ArgumentException">账号不能为空</exception>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> DeleteAccountTokensAsync(string account)
         {
-            CheckValue(nameof(account), account);
+            CheckValue(nameof(account), null, account);
 
             var param = InitParams();
             param.Add("account", account);
@@ -458,9 +470,12 @@ namespace PushNotifications
         /// URL: /v2/push/create_multipush
         /// </summary>
         /// <param name="msg">通知消息</param>
+        /// <exception cref="ArgumentException">当然 Notification 参数无效时</exception>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         public Task<string> CreateMultiPushAsync(Notification msg)
         {
+            CheckValue(nameof(msg), () => msg.IsEmpty);
+
             var param = InitParams(msg);
             return RestfulPost(GV.CREATEMULTIPUSH, param);
         }
@@ -472,7 +487,7 @@ namespace PushNotifications
         /// <param name="method">HTTP Method</param>
         /// <param name="param">http 参数</param>
         /// <returns>返回签名</returns>
-        public string Signature(string url, string method, Dictionary<string, string> param)
+        protected string Signature(string url, string method, Dictionary<string, string> param)
         {
             var builder = new StringBuilder();
             builder.Append(method);
@@ -544,10 +559,11 @@ namespace PushNotifications
         ///  工具方法测试数据是否为空
         /// </summary>
         /// <param name="message">提示消息</param>
+        /// <param name="action">其他检查方法</param>
         /// <param name="values">需要检查的值</param>
-        protected void CheckValue(string message, params string[] values)
+        protected void CheckValue(string message, Func<bool> action, params string[] values)
         {
-            if (values.Any(string.IsNullOrWhiteSpace))
+            if (values.Any(string.IsNullOrWhiteSpace) || (action != null && action()))
             {
                 throw new ArgumentException(message);
             }

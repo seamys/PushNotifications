@@ -25,6 +25,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 
 namespace PushNotifications.Schema
@@ -117,8 +118,8 @@ namespace PushNotifications.Schema
             }
             ls.Add(new
             {
-                start = new {hour = $"{sHour:D2}", min = $"{sMin:D2}"},
-                end = new {hour = $"{eHour:D2}", min = $"{eMin:D2}"}
+                start = new { hour = $"{sHour:D2}", min = $"{sMin:D2}" },
+                end = new { hour = $"{eHour:D2}", min = $"{eMin:D2}" }
             });
             CustomItems[key] = ls;
         }
@@ -132,5 +133,11 @@ namespace PushNotifications.Schema
         {
             AddAcceptTime(sHour, 0, eHour, 0);
         }
+
+        /// <summary>
+        /// 确定当前内容是否有效
+        /// </summary>
+        /// <returns></returns>
+        public abstract bool IsEmpty { get; }
     }
 }

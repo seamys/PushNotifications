@@ -552,5 +552,7 @@ namespace PushNotifications.Test
                 Assert.Catch<ArgumentException>(() => { client.CancelTimingTaskAsync(pushId).Wait(); });
             }
         }
+
+       
     }
 }

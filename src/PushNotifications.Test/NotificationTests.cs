@@ -50,7 +50,7 @@ namespace PushNotifications.Test
         {
             var notification = new AndroidNotification("message", "content");
             notification.AddCustom("accept_time",
-                new List<object> {new {start = new {hour = "10", min = "10"}, end = new {hour = "11", min = "10"}}});
+                new List<object> { new { start = new { hour = "10", min = "10" }, end = new { hour = "11", min = "10" } } });
             notification.AddAcceptTime(sHour, eHour);
             var time = JsonConvert.SerializeObject(notification.CustomItems["accept_time"]);
             Assert.AreEqual(time,
@@ -65,6 +65,27 @@ namespace PushNotifications.Test
             var time = JsonConvert.SerializeObject(notification.CustomItems["accept_time"]);
             Assert.AreEqual(time,
                 "[{\"start\":{\"hour\":\"14\",\"min\":\"00\"},\"end\":{\"hour\":\"23\",\"min\":\"59\"}}]");
+        }
+
+        [Test]
+        public void TestNotificationIsEmpty()
+        {
+            AndroidNotification android = new AndroidNotification();
+
+            Assert.IsTrue(android.IsEmpty);
+
+            android.Title = "title";
+            android.Content = "content";
+
+            Assert.IsFalse(android.IsEmpty);
+
+            PayloadNotification ios = new PayloadNotification(null);
+
+            Assert.IsTrue(ios.IsEmpty);
+
+            ios.Alert.Body = "abc";
+
+            Assert.IsFalse(ios.IsEmpty);
         }
     }
 }

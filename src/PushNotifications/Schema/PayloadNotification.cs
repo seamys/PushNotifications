@@ -91,6 +91,11 @@ namespace PushNotifications.Schema
         internal int PayloadId { get; set; }
 
         /// <summary>
+        /// 判断内容是否有效
+        /// </summary>
+        public override bool IsEmpty => Alert != null && Alert.IsEmpty;
+
+        /// <summary>
         /// JSON格式字符串
         /// </summary>
         /// <returns>JSON字符串</returns>
