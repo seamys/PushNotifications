@@ -530,13 +530,16 @@ namespace PushNotifications
             {
                 Timestamp = (uint)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
             }
-            uint time = ValidTime > 600 ? 600 : ValidTime;
+            uint time = ValidTime > 600 && ValidTime <= 0 ? 600 : ValidTime;
             var param = new Dictionary<string, string>
             {
                 { "access_id", AccessId },
                 { "timestamp", Timestamp.ToString() },
-                { "valid_time", time.ToString() }
             };
+            if (ValidTime < 600 && ValidTime > 0)
+            {
+                param.Add("valid_time", time.ToString());
+            }
             if (msg != null)
             {
                 param.Add("message", msg.ToJson());
