@@ -508,18 +508,15 @@ namespace PushNotifications
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
         protected Task<string> RestfulPost(string url, Dictionary<string, string> param)
         {
-            return Task.Run(() =>
+            var sign = Signature(url, "POST", param);
+            param.Add("sign", sign);
+            using (var client = HttpHandler != null ? new HttpClient(HttpHandler) : new HttpClient())
             {
-                var sign = Signature(url, "POST", param);
-                param.Add("sign", sign);
-                using (var client = HttpHandler != null ? new HttpClient(HttpHandler) : new HttpClient())
-                {
-                    var response = client.PostAsync(url, new FormUrlEncodedContent(param)).Result;
-                    string content = response.Content.ReadAsStringAsync().Result;
-                    HttpCallback?.Invoke(url, param, content);
-                    return content;
-                }
-            });
+                var response = client.PostAsync(url, new FormUrlEncodedContent(param)).Result;
+                string content = response.Content?.ReadAsStringAsync().Result;
+                HttpCallback?.Invoke(url, param, content);
+                return Task.FromResult(content);
+            }
         }
 
         /// <summary>

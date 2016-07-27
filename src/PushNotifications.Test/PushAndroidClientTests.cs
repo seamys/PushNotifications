@@ -58,19 +58,16 @@ namespace PushNotifications.Test
             return new PushClient(AccessId, SecretKey)
             {
                 Timestamp = 1462278512,
-                ValidTime = 600,
                 HttpHandler = httpHandler
             };
         }
 
         protected void InitClient(string url, List<KeyValuePair<string, string>> kvs, object content, ref MockHttpMessageHandler httpHandler)
         {
-            MockedRequest request = httpHandler.When(url);
             var list = new List<KeyValuePair<string, string>>()
             {
                 new KeyValuePair<string, string>("access_id", AccessId),
-                new KeyValuePair<string, string>("timestamp", "1462278512"),
-                new KeyValuePair<string, string>("valid_time", "600")
+                new KeyValuePair<string, string>("timestamp", "1462278512")
             };
             list.AddRange(kvs);
 
@@ -88,9 +85,7 @@ namespace PushNotifications.Test
 
             list.Add(new KeyValuePair<string, string>("sign", signature));
 
-            request.WithFormData(list);
-
-            request.Respond("application/json", JsonConvert.SerializeObject(content));
+            httpHandler.When(url).WithFormData(list).Respond("application/json", JsonConvert.SerializeObject(content));
         }
 
         public object GetResult(object result)
@@ -330,7 +325,7 @@ namespace PushNotifications.Test
         [TestCase(new[] { "account-1", "device-2" }, "push_id-1")]
         public void PushMultiAccountAsyncTest(string[] accounts, string pushId)
         {
-            string url = "http://openapi.xg.qq.com/v2/push/account_list";
+            string url = "http://openapi.xg.qq.com/v2/push/account_list_multiple";
             var dic = new Dictionary<string, string>
             {
                 { "account_list",JsonConvert.SerializeObject(accounts)},
@@ -342,7 +337,7 @@ namespace PushNotifications.Test
         }
 
         [TestCase(new[] { "account-1", "account-1" }, "message title", "message content")]
-        public void PushMultiAccountAsyncTest(string[] accounts, string title, string content)
+        public void PushMultiAccountAsyncTest2(string[] accounts, string title, string content)
         {
             MockHttpMessageHandler httpHandler = new MockHttpMessageHandler();
 
@@ -360,7 +355,7 @@ namespace PushNotifications.Test
                 { "account_list",JsonConvert.SerializeObject(accounts)},
                 { "push_id", "push_id-1"}
             };
-            InitClient("http://openapi.xg.qq.com/v2/push/account_list", dic.ToList(), GetResult(new { push_id = "push_id-1" }), ref httpHandler);
+            InitClient("http://openapi.xg.qq.com/v2/push/account_list_multiple", dic.ToList(), GetResult(new { push_id = "push_id-1" }), ref httpHandler);
 
             var client = new PushClient(AccessId, SecretKey)
             {
@@ -553,6 +548,6 @@ namespace PushNotifications.Test
             }
         }
 
-       
+
     }
 }
