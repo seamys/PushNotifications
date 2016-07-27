@@ -142,12 +142,12 @@ namespace PushNotifications
         /// <param name="pushId">推送Id</param>
         /// <exception cref="Exception">批量推送失败</exception>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
-        public async Task<string> PushMultiDeviceAsync(IEnumerable<string> devices, string pushId)
+        public Task<string> PushMultiDeviceAsync(IEnumerable<string> devices, string pushId)
         {
             var param = InitParams();
             param.Add("device_list", JsonConvert.SerializeObject(devices));
             param.Add("push_id", pushId);
-            return await RestfulPost(GV.PUSHDEVICELISTMULTIPLE, param);
+            return RestfulPost(GV.PUSHDEVICELISTMULTIPLE, param);
         }
 
         /// <summary>
@@ -159,10 +159,10 @@ namespace PushNotifications
         /// <param name="msg">消息体</param>
         /// <exception cref="Exception">批量推送失败</exception>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
-        public async Task<string> PushMultiDeviceAsync(IEnumerable<string> devices, Notification msg)
+        public Task<string> PushMultiDeviceAsync(IEnumerable<string> devices, Notification msg)
         {
-            var pushId = Utils.GetPushId(await CreateMultiPushAsync(msg));
-            return await PushMultiDeviceAsync(devices, pushId);
+            var pushId = Utils.GetPushId(CreateMultiPushAsync(msg).Result);
+            return PushMultiDeviceAsync(devices, pushId);
         }
 
         /// <summary>
@@ -238,12 +238,12 @@ namespace PushNotifications
         /// <param name="pushId">推送任务Id</param>
         /// <exception cref="Exception">推送失败</exception>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
-        public async Task<string> PushMultiAccountAsync(IEnumerable<string> accounts, string pushId)
+        public Task<string> PushMultiAccountAsync(IEnumerable<string> accounts, string pushId)
         {
             var param = InitParams();
             param.Add("account_list", JsonConvert.SerializeObject(accounts));
             param.Add("push_id", pushId);
-            return await RestfulPost(GV.PUSHACCOUNTLISTMULTIPLE, param);
+            return RestfulPost(GV.PUSHACCOUNTLISTMULTIPLE, param);
         }
 
         /// <summary>
@@ -254,10 +254,10 @@ namespace PushNotifications
         /// <param name="msg">推送通知</param>
         /// <exception cref="Exception">推送失败</exception>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
-        public async Task<string> PushMultiAccountAsync(IEnumerable<string> accounts, Notification msg)
+        public Task<string> PushMultiAccountAsync(IEnumerable<string> accounts, Notification msg)
         {
-            var pushId = Utils.GetPushId(await CreateMultiPushAsync(msg));
-            return await PushMultiAccountAsync(accounts, pushId);
+            var pushId = Utils.GetPushId(CreateMultiPushAsync(msg).Result);
+            return PushMultiAccountAsync(accounts, pushId);
         }
 
         /// <summary>
@@ -506,17 +506,20 @@ namespace PushNotifications
         /// <param name="url">访问URL</param>
         /// <param name="param">http 参数</param>
         /// <returns>腾讯服务器返回内容(未格式化)</returns>
-        protected async Task<string> RestfulPost(string url, Dictionary<string, string> param)
+        protected Task<string> RestfulPost(string url, Dictionary<string, string> param)
         {
-            var sign = Signature(url, "POST", param);
-            param.Add("sign", sign);
-            using (var client = HttpHandler != null ? new HttpClient(HttpHandler) : new HttpClient())
+            return Task.Run(() =>
             {
-                var response = await client.PostAsync(url, new FormUrlEncodedContent(param));
-                string content = await response.Content.ReadAsStringAsync();
-                HttpCallback?.Invoke(url, param, content);
-                return content;
-            }
+                var sign = Signature(url, "POST", param);
+                param.Add("sign", sign);
+                using (var client = HttpHandler != null ? new HttpClient(HttpHandler) : new HttpClient())
+                {
+                    var response = client.PostAsync(url, new FormUrlEncodedContent(param)).Result;
+                    string content = response.Content.ReadAsStringAsync().Result;
+                    HttpCallback?.Invoke(url, param, content);
+                    return content;
+                }
+            });
         }
 
         /// <summary>
