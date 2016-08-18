@@ -25,6 +25,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Text;
 using PushNotifications.Schema;
 
 namespace PushNotifications.Examples
@@ -41,6 +43,8 @@ namespace PushNotifications.Examples
 
         private static void Main(string[] args)
         {
+            Certify();
+
             //推送到所有Android设备
             SimpleToPushAllDevice();
 
@@ -301,6 +305,32 @@ namespace PushNotifications.Examples
         {
             Console.WriteLine(url);
             Console.WriteLine(content);
+        }
+
+        public static void Certify()
+        {
+
+            string aa = "";
+
+            Assembly ass = Assembly.GetAssembly(typeof(PushClient));
+            Console.WriteLine(ass.FullName.ToString());
+            byte[] pKey = ass.GetName().GetPublicKey();
+            byte[] pKeyToken = ass.GetName().GetPublicKeyToken();
+            string pKeyString = GetString(pKey);
+            string pKeyTokenString = GetString(pKeyToken);
+            Console.WriteLine("公钥是：{0}", pKeyString);
+            Console.WriteLine("公钥标识是{0}", pKeyTokenString);
+            Console.Read();
+        }
+
+        private static string GetString(byte[] bytes)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in bytes)
+            {
+                sb.Append(string.Format("{0:x}", b));
+            }
+            return sb.ToString();
         }
     }
 }
